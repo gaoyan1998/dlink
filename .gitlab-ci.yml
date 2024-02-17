@@ -1,4 +1,5 @@
 cache:
+  untracked: true
   paths:
     - build/dinky-release-1.18-1.0.0-rc4.tar.gz
   policy: pull
