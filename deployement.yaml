@@ -1,0 +1,49 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dinky-nodeport
+  namespace: service
+  labels:
+    app: dinky-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+  selector:
+    app: dinky
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dinky
+  namespace: service
+spec:
+  selector:
+    matchLabels:
+      app: dinky
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dinky
+    spec:
+      containers:
+        - name: dinky
+          imagePullPolicy: Always
+          command: [ "/bin/bash", "-c", "/dinky/auto.sh startOnPending 1.18" ]
+          image: ${DOCKER_REGISTRY_ADDRESS}/dinky:v${CI_PIPELINE_ID}
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - name: dinky-data
+              mountPath: /opt/flink/tmp
+          envFrom:
+            - secretRef:
+                name: dinky
+      volumes:
+        - name: dinky-data
+          persistentVolumeClaim:
+            claimName: dinky-data
