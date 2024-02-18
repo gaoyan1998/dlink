@@ -1,9 +1,3 @@
-cache:
-  untracked: true
-  paths:
-    - build/dinky-release-1.18-1.0.0-rc4.tar.gz
-  policy: pull
-
 stages:
   - build
   - build-image
@@ -28,9 +22,13 @@ build-dev:
 
 build-dev-image:
   stage: build-image
+  variables:
+    GIT_CHECKOUT: "false"
   script:
+    - echo 下载安装包
+    - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-release-1.18-1.0.0-rc4.tar.gz ./
     - echo 解压dinky && ls -al
-    - cd build && tar -zxf dinky-release-1.18-1.0.0-rc4.tar.gz
+    - tar -zxf dinky-release-1.18-1.0.0-rc4.tar.gz
     - echo 开始下载依赖
     - coscli cp -r  cos://flink-checkpoint-1251517753/data/lib/dinky/libs ./libs
     - cp ../Dockerfile ./ && cp ../deployment.yaml ./
