@@ -1,58 +1,66 @@
 stages:
   - build
-  - build-image
-  - deploy
+  - deploy-master
+  - deploy-dev
 
 ##############################################
-build-dev:
-  cache:
-    policy: push
+build:
   stage: build
+  variables:
+    IMAGE: release/bigdata/dinky:v${CI_PIPELINE_ID}
   script:
-    - echo 开始构建Dinky
-    - rm -rf build
-    - cd dinky-web
-    - npm config set registry http://10.2.4.16:8081/repository/group-npm
-    - npm install  --legacy-peer-deps
-    - npm run build && cd ..
-    - mvn -B clean package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.18,aliyun,fast
-    - echo 构建完成
-    - coscli cp build/dinky-release-1.18-1.0.0-rc4.tar.gz cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-release-1.18-1.0.0-rc4.tar.gz
+    - echo "Building application..."
+    - echo "$REGISTRY_PASSWORD" | sudo docker login -u ${REGISTRY_USERNAME} --password-stdin ${REGISTRY_ADDRESS}
+    - echo "registry login success"
+    - echo "构建项目"
+    - sudo BUILDKIT_INLINE_CACHE=1 docker build -t ${REGISTRY_ADDRESS}/${IMAGE} .
+    - sudo docker push ${REGISTRY_ADDRESS}/${IMAGE}
+    - echo "docker push && push success"
+
   tags:
-    - dinky
+    - build-master-runner
   only:
     - development
 
+##############################################
 
-build-dev-image:
-  stage: build-image
-  script:
-    - echo 下载安装包
-    - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-release-1.18-1.0.0-rc4.tar.gz ./
-    - echo 解压dinky && ls -al
-    - tar -zxf dinky-release-1.18-1.0.0-rc4.tar.gz
-    - echo 开始下载依赖
-    - coscli cp -r  cos://flink-checkpoint-1251517753/data/lib/dinky/libs ./libs
-    - cp ../Dockerfile ./ && cp ../deployment.yaml ./
-    - echo 打包镜像
-    - docker login -u ${DOCKER_REGISTRY_USERNAME} -p ${DOCKER_REGISTRY_PASSWORD} ${DOCKER_REGISTRY_ADDRESS}
-    - docker build -t ${DOCKER_REGISTRY_ADDRESS}/dinky:v${CI_PIPELINE_ID} .
-    - docker push ${DOCKER_REGISTRY_ADDRESS}/dinky:v${CI_PIPELINE_ID}
-    - echo 镜像打包完成
-  tags:
-    - dinky
-  only:
-    - development
-
-deploy-dev:
-  cache: {}
+deploy-master:
   stage: deploy
   when: manual
+  variables:
+    NODE_ENV: master
+  before_script:
+    - date +%H | cut -c 1-2 | grep -qE "$SUPPORT_HOUR" && echo "check hour success" || exit 126
+    - date +%u | grep -qE "$SUPPORT_WEEK" && echo "check week success" || exit 126
   script:
-    - echo 部署Dinky
+    - echo "Deploying application..."
     - envsubst < deployment.yaml > deployment_new.yaml
-    - kubectl apply -f deployment_new.yaml
+    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "[ -d ${DEPLOY_PATH} ] && echo ok || mkdir -p ${DEPLOY_PATH}"
+    - scp deployment_new.yaml ${MASTER_CI_USER}@${MASTER_CI_IP}:${DEPLOY_PATH}/deployment_wecom_robot_server.yaml
+    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "cd ${DEPLOY_PATH} && kubectl apply -f deployment_wecom_robot_server.yaml"
+    - echo "Application successfully deployed."
   tags:
-    - dinky
+    - deploy-master-runner
   only:
-    - development
+    - master
+##############################################
+
+deploy-dev:
+  stage: deploy
+  when: manual
+  variables:
+    NODE_ENV: master
+  before_script:
+    - date +%H | cut -c 1-2 | grep -qE "$SUPPORT_HOUR" && echo "check hour success" || exit 126
+    - date +%u | grep -qE "$SUPPORT_WEEK" && echo "check week success" || exit 126
+  script:
+    - echo "Deploying application..."
+    - envsubst < deployment.yaml > deployment_new.yaml
+    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "[ -d ${DEPLOY_PATH} ] && echo ok || mkdir -p ${DEPLOY_PATH}"
+    - scp deployment_new.yaml ${MASTER_CI_USER}@${MASTER_CI_IP}:${DEPLOY_PATH}/deployment_wecom_robot_server.yaml
+    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "cd ${DEPLOY_PATH} && kubectl apply -f deployment_wecom_robot_server.yaml"
+    - echo "Application successfully deployed."
+  tags:
+    - deploy-master-runner
+  only:
+    - master
