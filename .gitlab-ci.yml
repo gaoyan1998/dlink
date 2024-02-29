@@ -5,7 +5,7 @@ stages:
 build:
   stage: build
   variables:
-    IMAGE: release/bigdata/dinky:v${CI_PIPELINE_ID}
+    IMAGE: release/bigdata/dinky:1.0.4
   script:
     - echo "Building application..."
     - echo "$REGISTRY_PASSWORD" | sudo docker login -u ${REGISTRY_USERNAME} --password-stdin ${REGISTRY_ADDRESS}
