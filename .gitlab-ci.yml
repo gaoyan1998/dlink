@@ -1,7 +1,5 @@
 stages:
   - build
-  - deploy-master
-  - deploy-dev
 
 ##############################################
 build:
@@ -18,49 +16,6 @@ build:
     - echo "docker push && push success"
 
   tags:
-    - build-master-runner
+    - build-release-runner
   only:
     - development
-
-##############################################
-
-deploy-master:
-  stage: deploy
-  when: manual
-  variables:
-    NODE_ENV: master
-  before_script:
-    - date +%H | cut -c 1-2 | grep -qE "$SUPPORT_HOUR" && echo "check hour success" || exit 126
-    - date +%u | grep -qE "$SUPPORT_WEEK" && echo "check week success" || exit 126
-  script:
-    - echo "Deploying application..."
-    - envsubst < deployment.yaml > deployment_new.yaml
-    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "[ -d ${DEPLOY_PATH} ] && echo ok || mkdir -p ${DEPLOY_PATH}"
-    - scp deployment_new.yaml ${MASTER_CI_USER}@${MASTER_CI_IP}:${DEPLOY_PATH}/deployment_wecom_robot_server.yaml
-    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "cd ${DEPLOY_PATH} && kubectl apply -f deployment_wecom_robot_server.yaml"
-    - echo "Application successfully deployed."
-  tags:
-    - deploy-master-runner
-  only:
-    - master
-##############################################
-
-deploy-dev:
-  stage: deploy
-  when: manual
-  variables:
-    NODE_ENV: master
-  before_script:
-    - date +%H | cut -c 1-2 | grep -qE "$SUPPORT_HOUR" && echo "check hour success" || exit 126
-    - date +%u | grep -qE "$SUPPORT_WEEK" && echo "check week success" || exit 126
-  script:
-    - echo "Deploying application..."
-    - envsubst < deployment.yaml > deployment_new.yaml
-    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "[ -d ${DEPLOY_PATH} ] && echo ok || mkdir -p ${DEPLOY_PATH}"
-    - scp deployment_new.yaml ${MASTER_CI_USER}@${MASTER_CI_IP}:${DEPLOY_PATH}/deployment_wecom_robot_server.yaml
-    - ssh -p ${MASTER_CI_PORT} -tt ${MASTER_CI_USER}@${MASTER_CI_IP} "cd ${DEPLOY_PATH} && kubectl apply -f deployment_wecom_robot_server.yaml"
-    - echo "Application successfully deployed."
-  tags:
-    - deploy-master-runner
-  only:
-    - master
