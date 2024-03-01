@@ -38,6 +38,7 @@ import org.dinky.parser.SqlType;
 import org.dinky.resource.BaseResourceManager;
 import org.dinky.trans.Operations;
 import org.dinky.trans.dml.ExecuteJarOperation;
+import org.dinky.trans.parse.AddFileSqlParseStrategy;
 import org.dinky.trans.parse.AddJarSqlParseStrategy;
 import org.dinky.trans.parse.ExecuteJarParseStrategy;
 import org.dinky.url.RsURLStreamHandlerFactory;
@@ -127,8 +128,7 @@ public class Submitter {
         loadDep(appTask.getType(), config.getTaskId(), executorConfig);
         log.info("The job configuration is as follows: {}", executorConfig);
 
-        String[] statements =
-                SqlUtil.getStatements(sql, SystemConfiguration.getInstances().getSqlSeparator());
+        String[] statements = SqlUtil.getStatements(sql);
         Optional<JobClient> jobClient = Optional.empty();
         try {
             if (Dialect.FLINK_JAR == appTask.getDialect()) {
@@ -272,6 +272,12 @@ public class Submitter {
             if (Operations.getOperationType(sqlStatement) == SqlType.ADD) {
                 File[] info = AddJarSqlParseStrategy.getInfo(sqlStatement);
                 Arrays.stream(info).forEach(executor.getDinkyClassLoader().getUdfPathContextHolder()::addOtherPlugins);
+                if ("kubernetes-application".equals(type)) {
+                    executor.addJar(info);
+                }
+            } else if (Operations.getOperationType(sqlStatement) == SqlType.ADD_FILE) {
+                File[] info = AddFileSqlParseStrategy.getInfo(sqlStatement);
+                Arrays.stream(info).forEach(executor.getDinkyClassLoader().getUdfPathContextHolder()::addFile);
                 if ("kubernetes-application".equals(type)) {
                     executor.addJar(info);
                 }

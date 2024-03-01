@@ -22,7 +22,6 @@ package org.dinky.job;
 import org.dinky.api.FlinkAPI;
 import org.dinky.assertion.Asserts;
 import org.dinky.classloader.DinkyClassLoader;
-import org.dinky.constant.FlinkSQLConstant;
 import org.dinky.context.CustomTableEnvironmentContext;
 import org.dinky.context.FlinkUdfPathContextHolder;
 import org.dinky.context.RowLevelPermissionsContext;
@@ -58,6 +57,7 @@ import org.dinky.job.builder.JobTransBuilder;
 import org.dinky.job.builder.JobUDFBuilder;
 import org.dinky.parser.SqlType;
 import org.dinky.trans.Operations;
+import org.dinky.trans.parse.AddFileSqlParseStrategy;
 import org.dinky.trans.parse.AddJarSqlParseStrategy;
 import org.dinky.utils.DinkyClassLoaderUtil;
 import org.dinky.utils.JsonUtils;
@@ -82,8 +82,10 @@ import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +93,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrFormatter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,7 +107,6 @@ public class JobManager {
     private boolean isPlanMode = false;
     private boolean useStatementSet = false;
     private boolean useRestAPI = false;
-    private String sqlSeparator = FlinkSQLConstant.SEPARATOR;
     private GatewayType runMode = GatewayType.LOCAL;
 
     private JobParam jobParam = null;
@@ -162,10 +164,6 @@ public class JobManager {
         return useRestAPI;
     }
 
-    public String getSqlSeparator() {
-        return sqlSeparator;
-    }
-
     public boolean isUseGateway() {
         return useGateway;
     }
@@ -216,7 +214,6 @@ public class JobManager {
         }
         useStatementSet = config.isStatementSet();
         useRestAPI = SystemConfiguration.getInstances().isUseRestAPI();
-        sqlSeparator = SystemConfiguration.getInstances().getSqlSeparator();
         executorConfig = config.getExecutorSetting();
         executorConfig.setPlan(isPlanMode);
         executor = ExecutorFactory.buildExecutor(executorConfig, getDinkyClassLoader());
@@ -333,8 +330,8 @@ public class JobManager {
         ready();
 
         DinkyClassLoaderUtil.initClassLoader(config, getDinkyClassLoader());
-        jobParam = Explainer.build(executor, useStatementSet, sqlSeparator, this)
-                .pretreatStatements(SqlUtil.getStatements(statement, sqlSeparator));
+        jobParam =
+                Explainer.build(executor, useStatementSet, this).pretreatStatements(SqlUtil.getStatements(statement));
         try {
             // step 1: init udf
             JobUDFBuilder.build(this).run();
@@ -367,7 +364,7 @@ public class JobManager {
     }
 
     public IResult executeDDL(String statement) {
-        String[] statements = SqlUtil.getStatements(statement, sqlSeparator);
+        String[] statements = SqlUtil.getStatements(statement);
         try {
             IResult result = null;
             for (String item : statements) {
@@ -380,6 +377,9 @@ public class JobManager {
                     continue;
                 } else if (operationType.equals(SqlType.ADD) || operationType.equals(SqlType.ADD_JAR)) {
                     Set<File> allFilePath = AddJarSqlParseStrategy.getAllFilePath(item);
+                    getExecutor().getDinkyClassLoader().addURLs(allFilePath);
+                } else if (operationType.equals(SqlType.ADD_FILE)) {
+                    Set<File> allFilePath = AddFileSqlParseStrategy.getAllFilePath(item);
                     getExecutor().getDinkyClassLoader().addURLs(allFilePath);
                 }
                 LocalDateTime startTime = LocalDateTime.now();
@@ -401,19 +401,19 @@ public class JobManager {
     }
 
     public ExplainResult explainSql(String statement) {
-        return Explainer.build(executor, useStatementSet, sqlSeparator, this)
+        return Explainer.build(executor, useStatementSet, this)
                 .initialize(config, statement)
                 .explainSql(statement);
     }
 
     public ObjectNode getStreamGraph(String statement) {
-        return Explainer.build(executor, useStatementSet, sqlSeparator, this)
+        return Explainer.build(executor, useStatementSet, this)
                 .initialize(config, statement)
                 .getStreamGraph(statement);
     }
 
     public String getJobPlanJson(String statement) {
-        return Explainer.build(executor, useStatementSet, sqlSeparator, this)
+        return Explainer.build(executor, useStatementSet, this)
                 .initialize(config, statement)
                 .getJobPlanInfo(statement)
                 .getJsonPlan();
@@ -511,5 +511,12 @@ public class JobManager {
         }
         sb.append(statement);
         return sb.toString();
+    }
+
+    public List<URL> getAllFileSet() {
+        return CollUtil.isEmpty(getUdfPathContextHolder().getAllFileSet())
+                ? Collections.emptyList()
+                : Arrays.asList(URLUtils.getURLs(
+                        getUdfPathContextHolder().getAllFileSet().toArray(new File[0])));
     }
 }

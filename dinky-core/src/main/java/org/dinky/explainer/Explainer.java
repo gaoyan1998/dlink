@@ -20,9 +20,7 @@
 package org.dinky.explainer;
 
 import org.dinky.assertion.Asserts;
-import org.dinky.constant.FlinkSQLConstant;
 import org.dinky.data.model.LineageRel;
-import org.dinky.data.model.SystemConfiguration;
 import org.dinky.data.result.ExplainResult;
 import org.dinky.data.result.SqlExplainResult;
 import org.dinky.executor.CustomTableEnvironment;
@@ -40,6 +38,7 @@ import org.dinky.job.builder.JobUDFBuilder;
 import org.dinky.parser.SqlType;
 import org.dinky.trans.Operations;
 import org.dinky.trans.dml.ExecuteJarOperation;
+import org.dinky.trans.parse.AddFileSqlParseStrategy;
 import org.dinky.trans.parse.AddJarSqlParseStrategy;
 import org.dinky.trans.parse.ExecuteJarParseStrategy;
 import org.dinky.utils.DinkyClassLoaderUtil;
@@ -53,6 +52,7 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.rest.messages.JobPlanInfo;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,34 +77,22 @@ public class Explainer {
 
     private Executor executor;
     private boolean useStatementSet;
-    private String sqlSeparator;
     private ObjectMapper mapper = new ObjectMapper();
     private JobManager jobManager;
 
     public Explainer(Executor executor, boolean useStatementSet, JobManager jobManager) {
-        this(executor, useStatementSet, FlinkSQLConstant.SEPARATOR, jobManager);
-        init();
-    }
-
-    public Explainer(Executor executor, boolean useStatementSet, String sqlSeparator, JobManager jobManager) {
         this.executor = executor;
         this.useStatementSet = useStatementSet;
-        this.sqlSeparator = sqlSeparator;
         this.jobManager = jobManager;
     }
 
-    public void init() {
-        sqlSeparator = SystemConfiguration.getInstances().getSqlSeparator();
-    }
-
-    public static Explainer build(
-            Executor executor, boolean useStatementSet, String sqlSeparator, JobManager jobManager) {
-        return new Explainer(executor, useStatementSet, sqlSeparator, jobManager);
+    public static Explainer build(Executor executor, boolean useStatementSet, JobManager jobManager) {
+        return new Explainer(executor, useStatementSet, jobManager);
     }
 
     public Explainer initialize(JobConfig config, String statement) {
         DinkyClassLoaderUtil.initClassLoader(config, jobManager.getDinkyClassLoader());
-        String[] statements = SqlUtil.getStatements(SqlUtil.removeNote(statement), sqlSeparator);
+        String[] statements = SqlUtil.getStatements(SqlUtil.removeNote(statement));
         List<UDF> udfs = parseUDFFromStatements(statements);
         jobManager.setJobParam(new JobParam(udfs));
         try {
@@ -133,6 +121,12 @@ public class Explainer {
                 (executor.getDinkyClassLoader())
                         .addURLs(URLUtils.getURLs(
                                 jobManager.getUdfPathContextHolder().getOtherPluginsFiles()));
+            } else if (operationType.equals(SqlType.ADD_FILE)) {
+                AddFileSqlParseStrategy.getAllFilePath(statement)
+                        .forEach(t -> jobManager.getUdfPathContextHolder().addFile(t));
+                (executor.getDinkyClassLoader())
+                        .addURLs(URLUtils.getURLs(
+                                jobManager.getUdfPathContextHolder().getFiles()));
             } else if (operationType.equals(SqlType.ADD_JAR)) {
                 Configuration combinationConfig = getCombinationConfig();
                 FileSystem.initialize(combinationConfig, null);
@@ -199,7 +193,7 @@ public class Explainer {
 
     public ExplainResult explainSql(String statement) {
         log.info("Start explain FlinkSQL...");
-        JobParam jobParam = pretreatStatements(SqlUtil.getStatements(statement, sqlSeparator));
+        JobParam jobParam = pretreatStatements(SqlUtil.getStatements(statement));
         List<SqlExplainResult> sqlExplainRecords = new ArrayList<>();
         int index = 1;
         boolean correct = true;
@@ -299,8 +293,10 @@ public class Explainer {
                 if (Asserts.isNull(sqlExplainResult)) {
                     sqlExplainResult = new SqlExplainResult();
                 } else if (ExecuteJarParseStrategy.INSTANCE.match(item.getValue())) {
-                    StreamGraph streamGraph =
-                            new ExecuteJarOperation(item.getValue()).explain(executor.getCustomTableEnvironment());
+
+                    List<URL> allFileByAdd = jobManager.getAllFileSet();
+                    StreamGraph streamGraph = new ExecuteJarOperation(item.getValue())
+                            .explain(executor.getCustomTableEnvironment(), allFileByAdd);
                     sqlExplainResult.setExplain(streamGraph.getStreamingPlanAsJSON());
                 } else {
                     executor.executeSql(item.getValue());
@@ -335,7 +331,7 @@ public class Explainer {
     }
 
     public ObjectNode getStreamGraph(String statement) {
-        JobParam jobParam = pretreatStatements(SqlUtil.getStatements(statement, sqlSeparator));
+        JobParam jobParam = pretreatStatements(SqlUtil.getStatements(statement));
         jobParam.getDdl().forEach(statementParam -> executor.executeSql(statementParam.getValue()));
 
         if (!jobParam.getTrans().isEmpty()) {
@@ -351,7 +347,7 @@ public class Explainer {
     }
 
     public JobPlanInfo getJobPlanInfo(String statement) {
-        JobParam jobParam = pretreatStatements(SqlUtil.getStatements(statement, sqlSeparator));
+        JobParam jobParam = pretreatStatements(SqlUtil.getStatements(statement));
         jobParam.getDdl().forEach(statementParam -> executor.executeSql(statementParam.getValue()));
 
         if (!jobParam.getTrans().isEmpty()) {
@@ -380,7 +376,7 @@ public class Explainer {
         this.initialize(jobConfig, statement);
 
         List<LineageRel> lineageRelList = new ArrayList<>();
-        for (String item : SqlUtil.getStatements(statement, sqlSeparator)) {
+        for (String item : SqlUtil.getStatements(statement)) {
             try {
                 String sql = FlinkInterceptor.pretreatStatement(executor, item);
                 if (Asserts.isNullString(sql)) {

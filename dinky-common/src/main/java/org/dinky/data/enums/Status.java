@@ -260,6 +260,8 @@ public enum Status {
 
     LDAP_LOGIN_FORBID(18007, "ldap.login.forbid"),
 
+    LDAP_LOGIN_TEST_SUCCESS(18008, "ldap.login.test.success"),
+
     /**
      * datastudio about
      */
@@ -324,8 +326,6 @@ public enum Status {
      */
     SYS_FLINK_SETTINGS_USERESTAPI(100, "sys.flink.settings.useRestAPI"),
     SYS_FLINK_SETTINGS_USERESTAPI_NOTE(101, "sys.flink.settings.useRestAPI.note"),
-    SYS_FLINK_SETTINGS_SQLSEPARATOR(102, "sys.flink.settings.sqlSeparator"),
-    SYS_FLINK_SETTINGS_SQLSEPARATOR_NOTE(103, "sys.flink.settings.sqlSeparator.note"),
     SYS_FLINK_SETTINGS_JOBIDWAIT(104, "sys.flink.settings.jobIdWait"),
     SYS_FLINK_SETTINGS_JOBIDWAIT_NOTE(105, "sys.flink.settings.jobIdWait.note"),
     SYS_MAVEN_SETTINGS_SETTINGSFILEPATH(106, "sys.maven.settings.settingsFilePath"),
