@@ -35,5 +35,7 @@ RUN set -eux && \
     mkdir ./plugins/s3-fs-presto && \
     cp /opt/flink/opt/flink-s3-fs-presto-*.jar /opt/flink/plugins/s3-fs-presto/ && \
     rm -rf /opt/flink/lib/flink-table-planner-loader* && \
-    mv /dinky/jar/dinky-app-*.jar /opt/flink/lib
+    mv  /opt/flink/opt/flink-table-planner_2.12-1.18.1.jar /opt/flink/lib && \
+    mv /dinky/jar/dinky-app-*.jar /opt/flink/lib && \
+    curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
 
