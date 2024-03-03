@@ -30,7 +30,8 @@ build-image:
     - echo 下载安装包
     - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.18-1.0.0.tar.gz ./
     - echo 解压dinky && ls -al
-    - tar -zxf dinky-1.18-1.0.0.tar.gz && mv dinky* dinky
+    - tar -zxf dinky-1.18-1.0.0.tar.gz  && rm -rf dinky-1.18-1.0.0.tar.gz && ls -al
+    - mv dinky-* dinky
     - echo 开始下载依赖
     - coscli cp -r  cos://flink-checkpoint-1251517753/data/lib/dinky/libs ./libs
     - cp ../Dockerfile ./
