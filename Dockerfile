@@ -38,5 +38,5 @@ RUN set -eux && \
     mv  /opt/flink/opt/flink-table-planner_2.12-1.18.1.jar /opt/flink/lib && \
     mv /dinky/jar/dinky-app-*.jar /opt/flink/lib && \
     rm -rf /dinky/lib/log4j* && \
-    curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
+    curl -o /usr/bin/coscli "https://cosbrowser.cloud.tencent.com/software/coscli/coscli-linux"
 

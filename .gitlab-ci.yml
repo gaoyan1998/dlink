@@ -16,6 +16,6 @@ build:
     - echo "docker push && push success"
 
   tags:
-    - back-dev-runner
+    - build-release-runner
   only:
     - development
