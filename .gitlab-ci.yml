@@ -8,13 +8,12 @@ build:
     IMAGE: release/bigdata/dinky:1.0.4
   script:
     - echo "Building application..."
-    - echo "$REGISTRY_PASSWORD  ${REGISTRY_USERNAME}  ${REGISTRY_ADDRESS} "
-#    - echo "$REGISTRY_PASSWORD" | sudo docker login -u ${REGISTRY_USERNAME} --password-stdin ${REGISTRY_ADDRESS}
-#    - echo "registry login success"
-#    - echo "构建项目"
-#    - sudo BUILDKIT_INLINE_CACHE=1 docker build -t ${REGISTRY_ADDRESS}/${IMAGE} .
-#    - sudo docker push ${REGISTRY_ADDRESS}/${IMAGE}
-#    - echo "docker push && push success"
+    - echo "$REGISTRY_PASSWORD" | sudo docker login -u ${REGISTRY_USERNAME} --password-stdin ${REGISTRY_ADDRESS}
+    - echo "registry login success"
+    - echo "构建项目"
+    - sudo BUILDKIT_INLINE_CACHE=1 docker build -t ${REGISTRY_ADDRESS}/${IMAGE} .
+    - sudo docker push ${REGISTRY_ADDRESS}/${IMAGE}
+    - echo "docker push && push success"
 
   tags:
     - back-dev-runner
