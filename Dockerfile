@@ -34,6 +34,8 @@ RUN set -eux && \
     cp /opt/flink/opt/flink-s3-fs-hadoop-*.jar /opt/flink/plugins/s3-fs-hadoop/ && \
     mkdir ./plugins/s3-fs-presto && \
     cp /opt/flink/opt/flink-s3-fs-presto-*.jar /opt/flink/plugins/s3-fs-presto/ && \
+    cp /opt/flink/opt/flink-s3-fs-presto-*.jar /dinky/extends/ && \
+    cp /opt/flink/opt/flink-s3-fs-hadoop-*.jar /dinky/extends/ && \
     rm -rf /opt/flink/lib/flink-table-planner-loader* && \
     mv  /opt/flink/opt/flink-table-planner_2.12-1.18.1.jar /opt/flink/lib && \
     mv /dinky/jar/dinky-app-*.jar /opt/flink/lib && \
