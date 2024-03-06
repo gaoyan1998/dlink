@@ -25,8 +25,8 @@
 
 FROM flink:1.17.2-scala_2.12-java11
 
-ADD ./libs/* /opt/flink/lib/
 ADD ./dinky /dinky
+COPY /usr/local/bin/coscli /usr/local/bin/coscli
 
 RUN set -eux && \
     ln -snf /user/share/zoneinfo/Asia/Shanghai /etc/localtime && \
@@ -34,8 +34,6 @@ RUN set -eux && \
     cp /opt/flink/opt/flink-s3-fs-hadoop-*.jar /opt/flink/plugins/s3-fs-hadoop/ && \
     mkdir ./plugins/s3-fs-presto && \
     cp /opt/flink/opt/flink-s3-fs-presto-*.jar /opt/flink/plugins/s3-fs-presto/ && \
-    cp /opt/flink/opt/flink-s3-fs-presto-*.jar /dinky/extends/ && \
-    cp /opt/flink/opt/flink-s3-fs-hadoop-*.jar /dinky/extends/ && \
     rm -rf /opt/flink/lib/flink-table-planner-loader* && \
     mv  /opt/flink/opt/flink-table-planner_2.12-1.17.2.jar /opt/flink/lib && \
     cp -r /opt/flink/lib/* /dinky/extends/ && \
