@@ -26,8 +26,8 @@
 FROM flink:1.17.2-scala_2.12-java11
 
 ADD ./dinky /dinky
-COPY /usr/local/bin/coscli /usr/local/bin/coscli
-COPY /root/.cos.yaml /root/.cos.yaml
+COPY ./coscli /usr/local/bin/coscli
+COPY ./.cos.yaml /root/.cos.yaml
 
 RUN set -eux && \
     ln -snf /user/share/zoneinfo/Asia/Shanghai /etc/localtime && \
