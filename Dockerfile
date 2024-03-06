@@ -23,7 +23,7 @@
 #    tar -xvf dinky-release-1.18-1.0.0-rc4.tar.gz && \
 #    mv dinky-release-1.18-1.0.0-rc4 /dinky
 
-FROM flink:1.18.1-scala_2.12-java11
+FROM flink:1.17.2-scala_2.12-java11
 
 ADD ./libs/* /opt/flink/lib/
 ADD ./dinky /dinky
@@ -37,7 +37,7 @@ RUN set -eux && \
     cp /opt/flink/opt/flink-s3-fs-presto-*.jar /dinky/extends/ && \
     cp /opt/flink/opt/flink-s3-fs-hadoop-*.jar /dinky/extends/ && \
     rm -rf /opt/flink/lib/flink-table-planner-loader* && \
-    mv  /opt/flink/opt/flink-table-planner_2.12-1.18.1.jar /opt/flink/lib && \
+    mv  /opt/flink/opt/flink-table-planner_2.12-1.17.2.jar /opt/flink/lib && \
     mv /dinky/jar/dinky-app-*.jar /opt/flink/lib && \
     rm -rf /dinky/lib/log4j* && \
     chmod -R 777 /opt/flink/lib

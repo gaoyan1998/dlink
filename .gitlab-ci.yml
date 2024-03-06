@@ -14,10 +14,10 @@ build:
     - npm config set registry http://10.2.4.16:8081/repository/group-npm
     - npm install  --legacy-peer-deps
     - npm run build && cd ..
-    - mvn -B clean package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.18,aliyun,fast
+    - mvn -B clean package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,aliyun,fast
     - echo 构建完成 && cd build
-    - mv dinky-release-1.18* dinky-1.18-1.0.0.tar.gz
-    - coscli cp dinky-1.18-1.0.0.tar.gz cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.18-1.0.0.tar.gz
+    - mv dinky-release-1.17* dinky-1.17-1.0.0.tar.gz
+    - coscli cp dinky-1.17-1.0.0.tar.gz cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.17-1.0.0.tar.gz
   tags:
     - dinky
   only:
@@ -28,17 +28,17 @@ build-image:
   stage: build-image
   script:
     - echo 下载安装包
-    - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.18-1.0.0.tar.gz ./
+    - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.17-1.0.0.tar.gz ./
     - echo 解压dinky && ls -al
-    - tar -zxf dinky-1.18-1.0.0.tar.gz  && rm -rf dinky-1.18-1.0.0.tar.gz && ls -al
+    - tar -zxf dinky-1.17-1.0.0.tar.gz  && rm -rf dinky-1.17-1.0.0.tar.gz && ls -al
     - mv dinky-* dinky
     - echo 开始下载依赖
     - coscli cp -r  cos://flink-checkpoint-1251517753/data/lib/dinky/libs ./libs
     - cp ../Dockerfile ./
     - echo 打包镜像
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_ADDRESS}
-    - docker build -t ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.18-1.0.0 .
-    - docker push ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.18-1.0.0
+    - docker build -t ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.0 .
+    - docker push ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.0
     - echo 镜像打包完成
   tags:
     - dinky
