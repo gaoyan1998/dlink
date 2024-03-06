@@ -34,7 +34,7 @@ build-image:
     - mv dinky-* dinky
     - cp ../Dockerfile ./
     - cp /usr/local/bin/coscli ./
-    - cp /root/.cos.yaml  ./
+    - cp ~/.cos.yaml  ./
     - echo 打包镜像
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_ADDRESS}
     - docker build -t ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.0 .
