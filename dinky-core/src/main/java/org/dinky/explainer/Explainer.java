@@ -179,7 +179,13 @@ public class Explainer {
         Configuration combinationConfig = new Configuration();
         combinationConfig.addAll(rootConfig);
         combinationConfig.addAll(config);
-        return combinationConfig;
+        Configuration result = new Configuration();
+        for (Map.Entry<String, String> entry : combinationConfig.toMap().entrySet()) {
+            if (entry.getKey().startsWith("s3")) {
+                result.setString(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
     }
 
     public List<UDF> parseUDFFromStatements(String[] statements) {
