@@ -98,6 +98,7 @@ public class Submitter {
         Map<String, String> configMap =
                 CollUtil.toMap(sysConfigList, new HashMap<>(), SysConfig::getName, SysConfig::getValue);
         systemConfiguration.initSetConfiguration(configMap);
+        systemConfiguration.initExpressionVariableList(configMap);
     }
 
     public static void submit(AppParamConfig config) throws SQLException {
@@ -160,8 +161,11 @@ public class Submitter {
         }
         // build Database golbal varibals
         if (appTask.getFragment()) {
-            log.info("Global env is enable, load database flink config env.");
+            log.info("Global env is enable, load database flink config env and global variables.");
+            // append database flink config env
             sb.append(DBUtil.getDbSourceSQLStatement()).append("\n");
+            // append global variables
+            sb.append(DBUtil.getGlobalVariablesStatement()).append("\n");
         }
         sb.append(appTask.getStatement());
         return sb.toString();
@@ -248,8 +252,8 @@ public class Submitter {
     public static Optional<JobClient> executeJarJob(String type, Executor executor, String[] statements) {
         Optional<JobClient> jobClient = Optional.empty();
 
-        for (int i = 0; i < statements.length; i++) {
-            String sqlStatement = executor.pretreatStatement(statements[i]);
+        for (String statement : statements) {
+            String sqlStatement = executor.pretreatStatement(statement);
             if (ExecuteJarParseStrategy.INSTANCE.match(sqlStatement)) {
                 ExecuteJarOperation executeJarOperation = new ExecuteJarOperation(sqlStatement);
                 StreamGraph streamGraph = executeJarOperation.getStreamGraph(executor.getCustomTableEnvironment());
@@ -272,13 +276,13 @@ public class Submitter {
             if (Operations.getOperationType(sqlStatement) == SqlType.ADD) {
                 File[] info = AddJarSqlParseStrategy.getInfo(sqlStatement);
                 Arrays.stream(info).forEach(executor.getDinkyClassLoader().getUdfPathContextHolder()::addOtherPlugins);
-                if ("kubernetes-application".equals(type)) {
+                if (GatewayType.get(type).isKubernetesApplicationMode()) {
                     executor.addJar(info);
                 }
             } else if (Operations.getOperationType(sqlStatement) == SqlType.ADD_FILE) {
                 File[] info = AddFileSqlParseStrategy.getInfo(sqlStatement);
                 Arrays.stream(info).forEach(executor.getDinkyClassLoader().getUdfPathContextHolder()::addFile);
-                if ("kubernetes-application".equals(type)) {
+                if (GatewayType.get(type).isKubernetesApplicationMode()) {
                     executor.addJar(info);
                 }
             }

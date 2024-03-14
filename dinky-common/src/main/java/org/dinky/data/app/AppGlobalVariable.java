@@ -17,29 +17,19 @@
  *
  */
 
-import { handleGetOption, queryDataByParams } from '@/services/BusinessCrud';
-import { API_CONSTANTS } from '@/services/endpoints';
-import { l } from '@/utils/intl';
+package org.dinky.data.app;
 
-/*--- 刷新 元数据表 ---*/
-export async function showDataSourceTable(id: number) {
-  try {
-    const result = await handleGetOption(
-      API_CONSTANTS.DATASOURCE_GET_SCHEMA_TABLES,
-      l('pages.metadata.DataSearch'),
-      { id: id }
-    );
-    return result?.data;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-}
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-/*--- 清理 元数据表缓存 ---*/
-export function clearDataSourceTable(id: number) {
-  return queryDataByParams(API_CONSTANTS.DATASOURCE_UN_CACHE_SCHEMA_TABLES, { id: id });
-}
-export function getDataSourceList() {
-  return queryDataByParams(API_CONSTANTS.DATASOURCE_LIST_ENABLE_ALL);
+@Data
+public class AppGlobalVariable {
+    @ApiModelProperty(value = "ID", required = true, dataType = "Integer", example = "1", notes = "Primary Key")
+    private Integer id;
+
+    @ApiModelProperty(value = "Name", required = true, dataType = "String", example = "Name")
+    private String name;
+
+    @ApiModelProperty(value = "flinkConfig", dataType = "String", example = "flinkConfig")
+    private String fragmentValue;
 }

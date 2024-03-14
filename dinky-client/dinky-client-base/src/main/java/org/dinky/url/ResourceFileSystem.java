@@ -22,6 +22,7 @@ package org.dinky.url;
 import org.apache.flink.api.common.io.InputStreamFSInputWrapper;
 import org.dinky.resource.BaseResourceManager;
 
+import org.apache.flink.api.common.io.InputStreamFSInputWrapper;
 import org.apache.flink.core.fs.BlockLocation;
 import org.apache.flink.core.fs.FSDataInputStream;
 import org.apache.flink.core.fs.FSDataOutputStream;
@@ -29,7 +30,6 @@ import org.apache.flink.core.fs.FileStatus;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.core.fs.FileSystemKind;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.core.fs.local.LocalDataInputStream;
 import org.apache.flink.core.fs.local.LocalFileStatus;
 
 import java.io.File;
