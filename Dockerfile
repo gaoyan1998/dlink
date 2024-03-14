@@ -29,6 +29,8 @@ ADD ./dinky /dinky
 COPY ./coscli /usr/local/bin/coscli
 COPY ./.cos.yaml /root/.cos.yaml
 
+ENV TZ=Asia/Shanghai
+
 RUN set -eux && \
     ln -snf /user/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     mkdir ./plugins/s3-fs-hadoop && \
