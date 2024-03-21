@@ -19,7 +19,6 @@
 
 package org.dinky.url;
 
-import org.apache.flink.api.common.io.InputStreamFSInputWrapper;
 import org.dinky.resource.BaseResourceManager;
 
 import org.apache.flink.api.common.io.InputStreamFSInputWrapper;
