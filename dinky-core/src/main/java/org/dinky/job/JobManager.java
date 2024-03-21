@@ -91,6 +91,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -252,6 +253,8 @@ public class JobManager {
 
     @ProcessStep(type = ProcessStepType.SUBMIT_EXECUTE)
     public JobResult executeJarSql(String statement) throws Exception {
+        List<String> statements = Arrays.stream(SqlUtil.getStatements(statement)).map(t -> executor.pretreatStatement(t)).collect(Collectors.toList());
+        statement = String.join(";\n", statements);
         job = Job.build(runMode, config, executorConfig, executor, statement, useGateway);
         ready();
         JobJarStreamGraphBuilder jobJarStreamGraphBuilder = JobJarStreamGraphBuilder.build(this);
@@ -284,6 +287,7 @@ public class JobManager {
                 GatewayResult gatewayResult;
                 config.addGatewayConfig(configuration);
                 if (runMode.isApplicationMode()) {
+                    config.getGatewayConfig().setSql(statement);
                     gatewayResult = Gateway.build(config.getGatewayConfig()).submitJar(getUdfPathContextHolder());
                 } else {
                     streamGraph.setJobName(config.getJobName());
