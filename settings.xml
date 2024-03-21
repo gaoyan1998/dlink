@@ -1,0 +1,28 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <mirrors>
+        <mirror>
+            <id>sopei</id>
+            <url>http://10.2.4.16:8081/repository/maven-public/</url>
+            <mirrorOf>*</mirrorOf>
+        </mirror>
+    </mirrors>
+
+    <repositories>
+        <repository>
+            <id>aliyun-proxy</id>
+            <name>私有阿里云</name>
+<!--            <url>http://114.132.226.171:8081/repository/maven-public/</url>-->
+            <url>http://10.2.4.16:8081/repository/maven-public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+</settings>
