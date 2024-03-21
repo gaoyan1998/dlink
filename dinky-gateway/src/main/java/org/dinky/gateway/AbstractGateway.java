@@ -34,6 +34,7 @@ import org.dinky.gateway.result.SavePointResult;
 import org.dinky.utils.FlinkUtil;
 import org.dinky.utils.LogUtil;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
@@ -80,7 +81,11 @@ public abstract class AbstractGateway implements Gateway {
     public AbstractGateway() {}
 
     public AbstractGateway(GatewayConfig config) {
-        this.config = config;
+        try {
+            this.config = (GatewayConfig) BeanUtils.cloneBean(config);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -90,7 +95,11 @@ public abstract class AbstractGateway implements Gateway {
 
     @Override
     public void setGatewayConfig(GatewayConfig config) {
-        this.config = config;
+        try {
+            this.config = (GatewayConfig) BeanUtils.cloneBean(config);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected abstract void init();
