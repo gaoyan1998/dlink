@@ -102,23 +102,6 @@ public abstract class KubernetesGateway extends AbstractGateway {
         }
 
         k8sClientHelper = new K8sClientHelper(configuration, k8sConfig);
-        String decoratedPodTemplate = k8sClientHelper.decoratePodTemplate(getTempSqlFile());
-        k8sConfig.setPodTemplate(decoratedPodTemplate);
-        preparPodTemplate(k8sConfig.getPodTemplate(), KubernetesConfigOptions.KUBERNETES_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getJmPodTemplate(), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getTmPodTemplate(), KubernetesConfigOptions.TASK_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getKubeConfig(), KubernetesConfigOptions.KUBE_CONFIG_FILE);
-    }
-
-    private void preparPodTemplate(String podTemplate, ConfigOption<String> option) {
-        if (!TextUtil.isEmpty(podTemplate)) {
-            String filePath = String.format("%s/%s.yaml", tmpConfDir, option.key());
-            if (FileUtil.exist(filePath)) {
-                Assert.isTrue(FileUtil.del(filePath));
-            }
-            FileUtil.writeUtf8String(podTemplate, filePath);
-            addConfigParas(option, filePath);
-        }
     }
 
     public SavePointResult savepointCluster(String savePoint) {
@@ -210,7 +193,6 @@ public abstract class KubernetesGateway extends AbstractGateway {
     }
 
     public boolean close() {
-        super.close();
         if (k8sClientHelper != null) {
             return k8sClientHelper.close();
         }

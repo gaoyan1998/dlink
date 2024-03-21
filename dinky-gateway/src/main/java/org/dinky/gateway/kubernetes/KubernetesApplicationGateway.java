@@ -19,6 +19,9 @@
 
 package org.dinky.gateway.kubernetes;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
+import org.apache.flink.configuration.ConfigOption;
 import org.dinky.assertion.Asserts;
 import org.dinky.context.FlinkUdfPathContextHolder;
 import org.dinky.data.enums.GatewayType;
@@ -45,8 +48,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.dinky.utils.TextUtil;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import cn.hutool.core.text.StrFormatter;
@@ -55,6 +61,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import lombok.extern.slf4j.Slf4j;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 /**
  * KubernetesApplicationGateway
@@ -62,12 +70,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KubernetesApplicationGateway extends KubernetesGateway {
 
+    private final String tmpConfDir = String.format("%s/tmp/kubernets/%s", System.getProperty("user.dir"), UUID.randomUUID());
+
     /**
      * @return The type of the Kubernetes gateway, which is GatewayType.KUBERNETES_APPLICATION.
      */
     @Override
     public GatewayType getType() {
         return GatewayType.KUBERNETES_APPLICATION;
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        Pod decoratedPodTemplate = getK8sClientHelper().decoratePodTemplate(config.getSql());
+        // use snakyaml to serialize the pod
+        Representer representer = new IgnoreNullRepresenter();
+        // set the label of the Map type, only the map type will not print the class name when dumping
+        representer.addClassTag(Pod.class, Tag.MAP);
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        Yaml yaml = new Yaml(representer, options);
+        preparPodTemplate(yaml.dump(decoratedPodTemplate), KubernetesConfigOptions.KUBERNETES_POD_TEMPLATE);
+        preparPodTemplate(k8sConfig.getJmPodTemplate(), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
+        preparPodTemplate(k8sConfig.getTmPodTemplate(), KubernetesConfigOptions.TASK_MANAGER_POD_TEMPLATE);
+        preparPodTemplate(k8sConfig.getKubeConfig(), KubernetesConfigOptions.KUBE_CONFIG_FILE);
     }
 
     /**
@@ -206,4 +234,21 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
         throw new GatewayException(
                 "The number of retries exceeds the limit, check the K8S cluster for more information");
     }
+
+    private void preparPodTemplate(String podTemplate, ConfigOption<String> option) {
+        if (!TextUtil.isEmpty(podTemplate)) {
+            String filePath = String.format("%s/%s.yaml", tmpConfDir, option.key());
+            if (FileUtil.exist(filePath)) {
+                Assert.isTrue(FileUtil.del(filePath));
+            }
+            FileUtil.writeUtf8String(podTemplate, filePath);
+            addConfigParas(option, filePath);
+        }
+    }
+
+    public boolean close() {
+        super.close();
+        return FileUtil.del(tmpConfDir);
+    }
+
 }

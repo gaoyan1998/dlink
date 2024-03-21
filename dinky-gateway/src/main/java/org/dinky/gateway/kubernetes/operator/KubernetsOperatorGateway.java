@@ -157,12 +157,9 @@ public abstract class KubernetsOperatorGateway extends KubernetesGateway {
         logger.info("taskmanager resource is : cpu-->{}, mem-->{}", tmcpu, tmmem);
         taskManagerSpec.setResource(new Resource(Double.parseDouble(tmcpu), tmmem));
 
-        if (!TextUtil.isEmpty(k8sConfig.getPodTemplate())) {
-            InputStream inputStream =
-                    new ByteArrayInputStream(k8sConfig.getPodTemplate().getBytes(StandardCharsets.UTF_8));
-            defaultPod = kubernetesClient.pods().load(inputStream).get();
-            flinkDeploymentSpec.setPodTemplate(defaultPod);
-        }
+        defaultPod = getK8sClientHelper().decoratePodTemplate(config.getSql());
+        flinkDeploymentSpec.setPodTemplate(defaultPod);
+
         if (!TextUtil.isEmpty(k8sConfig.getJmPodTemplate())) {
             InputStream inputStream =
                     new ByteArrayInputStream(k8sConfig.getJmPodTemplate().getBytes(StandardCharsets.UTF_8));

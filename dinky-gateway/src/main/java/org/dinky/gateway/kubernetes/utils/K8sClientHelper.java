@@ -128,13 +128,11 @@ public class K8sClientHelper {
     /**
      * initPodTemplate
      * Preprocess the pod template
-     * @param sqlFile
+     * @param sqlStatement
      * @return
      */
-    public String decoratePodTemplate(File sqlFile) {
+    public Pod decoratePodTemplate(String sqlStatement) {
         Pod pod;
-        // k8s pod template
-        Map<String, String> cfg = new HashMap<>();
         // if the user has configured the pod template, combine user's configuration
         if (!TextUtil.isEmpty(k8sConfig.getPodTemplate())) {
             InputStream is = new ByteArrayInputStream(k8sConfig.getPodTemplate().getBytes(StandardCharsets.UTF_8));
@@ -145,18 +143,8 @@ public class K8sClientHelper {
         }
 
         // decorate the pod template
-        sqlFileDecorate = new DinkySqlConfigMapDecorate(configuration, pod, sqlFile);
-        Pod sqlDecoratedPod = sqlFileDecorate.decoratePodMount();
-
-        // use snakyaml to serialize the pod
-        Representer representer = new IgnoreNullRepresenter();
-        // set the label of the Map type, only the map type will not print the class name when dumping
-        representer.addClassTag(Pod.class, Tag.MAP);
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setPrettyFlow(true);
-        Yaml yaml = new Yaml(representer, options);
-        return yaml.dump(sqlDecoratedPod);
+        sqlFileDecorate = new DinkySqlConfigMapDecorate(configuration, pod, sqlStatement);
+        return sqlFileDecorate.decoratePodMount();
     }
 
     /**

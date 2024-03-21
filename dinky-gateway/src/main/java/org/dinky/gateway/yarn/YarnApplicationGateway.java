@@ -19,6 +19,7 @@
 
 package org.dinky.gateway.yarn;
 
+import cn.hutool.core.io.FileUtil;
 import org.dinky.assertion.Asserts;
 import org.dinky.constant.CustomerConfigureOptions;
 import org.dinky.context.FlinkUdfPathContextHolder;
@@ -38,6 +39,8 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
@@ -48,6 +51,7 @@ import cn.hutool.core.collection.CollUtil;
  * @since 2021/10/29
  */
 public class YarnApplicationGateway extends YarnGateway {
+    private final String tmpConfDir = String.format("%s/tmp/%s", System.getProperty("user.dir"),UUID.randomUUID().toString());
 
     @Override
     public GatewayType getType() {
@@ -77,11 +81,10 @@ public class YarnApplicationGateway extends YarnGateway {
         YarnResult result = YarnResult.build(getType());
         String webUrl;
         try (YarnClusterDescriptor yarnClusterDescriptor = createYarnClusterDescriptorWithJar(udfPathContextHolder)) {
-            File tempSqlFile = getTempSqlFile();
-            if (tempSqlFile != null) {
-                yarnClusterDescriptor.addShipFiles(CollUtil.newArrayList(tempSqlFile));
-                addConfigParas(CustomerConfigureOptions.EXEC_SQL_FILE, tempSqlFile.getName());
-            }
+
+            yarnClusterDescriptor.addShipFiles(CollUtil.newArrayList(preparSqlFile()));
+            addConfigParas(CustomerConfigureOptions.EXEC_SQL_FILE, configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE));
+
             ClusterClientProvider<ApplicationId> clusterClientProvider = yarnClusterDescriptor.deployApplicationCluster(
                     clusterSpecificationBuilder.createClusterSpecification(), applicationConfiguration);
             ClusterClient<ApplicationId> clusterClient = clusterClientProvider.getClusterClient();
@@ -94,7 +97,21 @@ public class YarnApplicationGateway extends YarnGateway {
             result.success();
         } catch (Exception e) {
             result.fail(LogUtil.getError(e));
+        }finally {
+            close();
         }
         return result;
+    }
+
+    private File preparSqlFile(){
+        File tempSqlFile = new File(String.format(
+                "%s/%s", tmpConfDir, configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE)));
+        String sql = config == null ? "" : config.getSql();
+        FileUtil.writeString(Optional.ofNullable(sql).orElse(""), tempSqlFile.getAbsolutePath(), "UTF-8");
+        return tempSqlFile;
+    }
+
+    public boolean close() {
+        return FileUtil.del(tmpConfDir);
     }
 }

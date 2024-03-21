@@ -20,7 +20,6 @@
 package org.dinky.gateway;
 
 import org.dinky.assertion.Asserts;
-import org.dinky.constant.CustomerConfigureOptions;
 import org.dinky.context.FlinkUdfPathContextHolder;
 import org.dinky.data.enums.GatewayType;
 import org.dinky.data.enums.JobStatus;
@@ -34,7 +33,6 @@ import org.dinky.gateway.result.SavePointResult;
 import org.dinky.utils.FlinkUtil;
 import org.dinky.utils.LogUtil;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
@@ -47,7 +45,6 @@ import org.apache.flink.configuration.TaskManagerOptions;
 import org.apache.flink.runtime.client.JobStatusMessage;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,32 +57,23 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.text.StrFormatter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * AbstractGateway
  *
  * @since 2021/10/29
  */
-@Slf4j
 public abstract class AbstractGateway implements Gateway {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractGateway.class);
     protected GatewayConfig config;
     protected Configuration configuration = new Configuration();
-    protected String tmpConfDir = String.format("%s/tmp/", System.getProperty("user.dir"));
-    private File tempSqlFile;
 
     public AbstractGateway() {}
 
     public AbstractGateway(GatewayConfig config) {
-        try {
-            this.config = (GatewayConfig) BeanUtils.cloneBean(config);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.config = config;
     }
 
     @Override
@@ -95,11 +83,7 @@ public abstract class AbstractGateway implements Gateway {
 
     @Override
     public void setGatewayConfig(GatewayConfig config) {
-        try {
-            this.config = (GatewayConfig) BeanUtils.cloneBean(config);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.config = config;
     }
 
     protected abstract void init();
@@ -157,7 +141,7 @@ public abstract class AbstractGateway implements Gateway {
             String savePoint, T applicationId, ClusterDescriptor<T> clusterDescriptor) {
         SavePointResult result = SavePointResult.build(getType());
         try (ClusterClient<T> clusterClient =
-                clusterDescriptor.retrieve(applicationId).getClusterClient()) {
+                     clusterDescriptor.retrieve(applicationId).getClusterClient()) {
             List<JobInfo> jobInfos = Collections.singletonList(
                     new JobInfo(config.getFlinkConfig().getJobId(), JobInfo.JobStatus.FAIL));
             runSavePointJob(jobInfos, clusterClient, savePoint);
@@ -172,7 +156,7 @@ public abstract class AbstractGateway implements Gateway {
             String savePoint, T applicationId, ClusterDescriptor<T> clusterDescriptor) {
         SavePointResult result = SavePointResult.build(getType());
         try (ClusterClient<T> clusterClient =
-                clusterDescriptor.retrieve(applicationId).getClusterClient()) {
+                     clusterDescriptor.retrieve(applicationId).getClusterClient()) {
             List<JobInfo> jobInfos = new ArrayList<>();
             CompletableFuture<Collection<JobStatusMessage>> listJobsFuture = clusterClient.listJobs();
             for (JobStatusMessage jobStatusMessage : listJobsFuture.get()) {
@@ -251,34 +235,5 @@ public abstract class AbstractGateway implements Gateway {
     @Override
     public boolean onJobFinishCallback(String status) {
         return true;
-    }
-
-    private File initTempSqlFile() {
-        tempSqlFile = new File(String.format(
-                "%s/%s/%s", tmpConfDir, UUID.randomUUID(), configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE)));
-        String sql = config == null ? "" : config.getSql();
-        FileUtil.writeString(Optional.ofNullable(sql).orElse(""), tempSqlFile.getAbsolutePath(), "UTF-8");
-        return tempSqlFile;
-    }
-
-    public File getTempSqlFile() {
-        if (tempSqlFile == null) {
-            tempSqlFile = initTempSqlFile();
-        }
-        return tempSqlFile;
-    }
-
-    @Override
-    public boolean close() {
-        try {
-            if (tempSqlFile != null) {
-                File parentFile = tempSqlFile.getParentFile();
-                FileUtil.clean(parentFile);
-                return parentFile.delete();
-            }
-        } catch (Exception e) {
-            log.warn("fail delete temp sql dir {}", tempSqlFile.getAbsolutePath());
-        }
-        return false;
     }
 }

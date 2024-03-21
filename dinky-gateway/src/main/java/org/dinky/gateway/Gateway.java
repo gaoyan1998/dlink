@@ -91,5 +91,4 @@ public interface Gateway {
 
     GatewayResult deployCluster(FlinkUdfPathContextHolder udfPathContextHolder);
 
-    boolean close();
 }
