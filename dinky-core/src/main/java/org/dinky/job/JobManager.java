@@ -253,10 +253,12 @@ public class JobManager {
 
     @ProcessStep(type = ProcessStepType.SUBMIT_EXECUTE)
     public JobResult executeJarSql(String statement) throws Exception {
-        List<String> statements = Arrays.stream(SqlUtil.getStatements(statement)).map(t -> executor.pretreatStatement(t)).collect(Collectors.toList());
-        statement = String.join(";\n", statements);
         job = Job.build(runMode, config, executorConfig, executor, statement, useGateway);
         ready();
+
+        List<String> statements = Arrays.stream(SqlUtil.getStatements(statement)).map(t -> executor.pretreatStatement(t)).collect(Collectors.toList());
+        statement = String.join(";\n", statements);
+
         JobJarStreamGraphBuilder jobJarStreamGraphBuilder = JobJarStreamGraphBuilder.build(this);
         StreamGraph streamGraph = jobJarStreamGraphBuilder.getJarStreamGraph(statement, getDinkyClassLoader());
         Configuration configuration =
