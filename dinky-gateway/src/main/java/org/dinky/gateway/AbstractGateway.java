@@ -141,7 +141,7 @@ public abstract class AbstractGateway implements Gateway {
             String savePoint, T applicationId, ClusterDescriptor<T> clusterDescriptor) {
         SavePointResult result = SavePointResult.build(getType());
         try (ClusterClient<T> clusterClient =
-                     clusterDescriptor.retrieve(applicationId).getClusterClient()) {
+                clusterDescriptor.retrieve(applicationId).getClusterClient()) {
             List<JobInfo> jobInfos = Collections.singletonList(
                     new JobInfo(config.getFlinkConfig().getJobId(), JobInfo.JobStatus.FAIL));
             runSavePointJob(jobInfos, clusterClient, savePoint);
@@ -156,7 +156,7 @@ public abstract class AbstractGateway implements Gateway {
             String savePoint, T applicationId, ClusterDescriptor<T> clusterDescriptor) {
         SavePointResult result = SavePointResult.build(getType());
         try (ClusterClient<T> clusterClient =
-                     clusterDescriptor.retrieve(applicationId).getClusterClient()) {
+                clusterDescriptor.retrieve(applicationId).getClusterClient()) {
             List<JobInfo> jobInfos = new ArrayList<>();
             CompletableFuture<Collection<JobStatusMessage>> listJobsFuture = clusterClient.listJobs();
             for (JobStatusMessage jobStatusMessage : listJobsFuture.get()) {

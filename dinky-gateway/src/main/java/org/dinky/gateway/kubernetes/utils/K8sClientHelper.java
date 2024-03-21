@@ -30,19 +30,11 @@ import org.apache.flink.kubernetes.kubeclient.FlinkKubeClientFactory;
 import org.apache.http.util.TextUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 import cn.hutool.core.io.FileUtil;
 import io.fabric8.kubernetes.api.model.HasMetadata;

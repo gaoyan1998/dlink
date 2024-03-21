@@ -90,5 +90,4 @@ public interface Gateway {
     boolean onJobFinishCallback(String status);
 
     GatewayResult deployCluster(FlinkUdfPathContextHolder udfPathContextHolder);
-
 }
