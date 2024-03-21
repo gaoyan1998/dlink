@@ -21,7 +21,7 @@ build:
   tags:
     - dinky
   only:
-    - dev*
+    - /^dev-.*/
 
 
 build-image:
@@ -43,4 +43,4 @@ build-image:
   tags:
     - dinky
   only:
-    - dev*
+    - /^dev-.*/
