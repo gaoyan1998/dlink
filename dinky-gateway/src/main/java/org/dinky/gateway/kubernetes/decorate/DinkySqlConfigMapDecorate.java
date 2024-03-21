@@ -26,14 +26,12 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.kubernetes.utils.Constants;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.hutool.core.io.FileUtil;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.Container;
@@ -53,14 +51,14 @@ public class DinkySqlConfigMapDecorate {
     private Pod podWithoutMainContainer;
     private Container mainContainer;
     private final Configuration configuration;
-    private File sqlFile;
+    private final String sqlStatement;
 
-    public DinkySqlConfigMapDecorate(Configuration configuration, Pod pod, File sqlFile) {
+    public DinkySqlConfigMapDecorate(Configuration configuration, Pod pod, String sqlStatement) {
         if (!configuration.contains(KubernetesConfigOptions.CLUSTER_ID)) {
             throw new IllegalArgumentException(KubernetesConfigOptions.CLUSTER_ID.key() + " must not be blank.");
         }
         this.configuration = configuration;
-        this.sqlFile = sqlFile;
+        this.sqlStatement = sqlStatement;
         decorateFlinkPod(pod);
     }
 
@@ -110,8 +108,8 @@ public class DinkySqlConfigMapDecorate {
     private Pod decoratePodVolume() {
 
         final List<KeyToPath> keyToPaths = Collections.singletonList(new KeyToPathBuilder()
-                .withKey(sqlFile.getName())
-                .withPath(sqlFile.getName())
+                .withKey(configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE))
+                .withPath(configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE))
                 .build());
 
         final Volume sqlConfigVolume = new VolumeBuilder()
@@ -134,7 +132,7 @@ public class DinkySqlConfigMapDecorate {
         final String clusterId = configuration.get(KubernetesConfigOptions.CLUSTER_ID);
 
         final Map<String, String> data = new HashMap<>();
-        data.put(configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE), FileUtil.readUtf8String(sqlFile));
+        data.put(configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE), sqlStatement);
 
         final Map<String, String> commonLabels = new HashMap<>();
         commonLabels.put(Constants.LABEL_TYPE_KEY, Constants.LABEL_TYPE_NATIVE_TYPE);

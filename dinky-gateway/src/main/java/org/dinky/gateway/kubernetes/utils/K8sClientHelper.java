@@ -30,19 +30,11 @@ import org.apache.flink.kubernetes.kubeclient.FlinkKubeClientFactory;
 import org.apache.http.util.TextUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 import cn.hutool.core.io.FileUtil;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -128,13 +120,11 @@ public class K8sClientHelper {
     /**
      * initPodTemplate
      * Preprocess the pod template
-     * @param sqlFile
+     * @param sqlStatement
      * @return
      */
-    public String decoratePodTemplate(File sqlFile) {
+    public Pod decoratePodTemplate(String sqlStatement) {
         Pod pod;
-        // k8s pod template
-        Map<String, String> cfg = new HashMap<>();
         // if the user has configured the pod template, combine user's configuration
         if (!TextUtil.isEmpty(k8sConfig.getPodTemplate())) {
             InputStream is = new ByteArrayInputStream(k8sConfig.getPodTemplate().getBytes(StandardCharsets.UTF_8));
@@ -145,18 +135,8 @@ public class K8sClientHelper {
         }
 
         // decorate the pod template
-        sqlFileDecorate = new DinkySqlConfigMapDecorate(configuration, pod, sqlFile);
-        Pod sqlDecoratedPod = sqlFileDecorate.decoratePodMount();
-
-        // use snakyaml to serialize the pod
-        Representer representer = new IgnoreNullRepresenter();
-        // set the label of the Map type, only the map type will not print the class name when dumping
-        representer.addClassTag(Pod.class, Tag.MAP);
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setPrettyFlow(true);
-        Yaml yaml = new Yaml(representer, options);
-        return yaml.dump(sqlDecoratedPod);
+        sqlFileDecorate = new DinkySqlConfigMapDecorate(configuration, pod, sqlStatement);
+        return sqlFileDecorate.decoratePodMount();
     }
 
     /**

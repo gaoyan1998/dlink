@@ -28,9 +28,7 @@ import org.dinky.gateway.exception.GatewayException;
 import org.dinky.gateway.kubernetes.utils.K8sClientHelper;
 import org.dinky.gateway.result.SavePointResult;
 import org.dinky.gateway.result.TestResult;
-import org.dinky.utils.TextUtil;
 
-import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.DeploymentOptions;
 import org.apache.flink.configuration.GlobalConfiguration;
@@ -46,8 +44,6 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.UUID;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.text.StrFormatter;
 import cn.hutool.core.util.ReflectUtil;
 import lombok.Data;
@@ -102,23 +98,6 @@ public abstract class KubernetesGateway extends AbstractGateway {
         }
 
         k8sClientHelper = new K8sClientHelper(configuration, k8sConfig);
-        String decoratedPodTemplate = k8sClientHelper.decoratePodTemplate(getTempSqlFile());
-        k8sConfig.setPodTemplate(decoratedPodTemplate);
-        preparPodTemplate(k8sConfig.getPodTemplate(), KubernetesConfigOptions.KUBERNETES_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getJmPodTemplate(), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getTmPodTemplate(), KubernetesConfigOptions.TASK_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getKubeConfig(), KubernetesConfigOptions.KUBE_CONFIG_FILE);
-    }
-
-    private void preparPodTemplate(String podTemplate, ConfigOption<String> option) {
-        if (!TextUtil.isEmpty(podTemplate)) {
-            String filePath = String.format("%s/%s.yaml", tmpConfDir, option.key());
-            if (FileUtil.exist(filePath)) {
-                Assert.isTrue(FileUtil.del(filePath));
-            }
-            FileUtil.writeUtf8String(podTemplate, filePath);
-            addConfigParas(option, filePath);
-        }
     }
 
     public SavePointResult savepointCluster(String savePoint) {
@@ -210,7 +189,6 @@ public abstract class KubernetesGateway extends AbstractGateway {
     }
 
     public boolean close() {
-        super.close();
         if (k8sClientHelper != null) {
             return k8sClientHelper.close();
         }
