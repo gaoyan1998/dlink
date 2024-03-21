@@ -43,4 +43,4 @@ build-image:
   tags:
     - dinky
   only:
-    - development
+    - dev*
