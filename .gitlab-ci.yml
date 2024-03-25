@@ -1,6 +1,8 @@
 stages:
   - build
   - build-image
+  - build-1-15
+  - build-image-1-15
 
 ##############################################
 build:
