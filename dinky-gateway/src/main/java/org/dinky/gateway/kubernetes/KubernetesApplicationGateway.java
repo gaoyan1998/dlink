@@ -211,8 +211,8 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
                 try (ClusterClient<String> client = clusterClient.getClusterClient()) {
                     logger.info("Start get job list ....");
 //                    Collection<JobStatusMessage> jobList = client.listJobs().get(15, TimeUnit.SECONDS);
-                    logger.info("Get K8S url:{}", client.getWebInterfaceURL());
-                    FlinkAPI api = FlinkAPI.build(client.getWebInterfaceURL());
+                    logger.info("Get K8S url:{}", client.getWebInterfaceURL().replace("http://",""));
+                    FlinkAPI api = FlinkAPI.build(client.getWebInterfaceURL().replace("http://",""));
                     List<JsonNode> jobList = api.listJobs();
                     logger.info("Get K8S Job list: {}", jobList);
                     if (jobList.isEmpty()) {
