@@ -3,7 +3,7 @@ stages:
   - build-image
 
 ##############################################
-build:
+build-1-17:
   cache:
     policy: push
   stage: build
@@ -44,8 +44,9 @@ build-1-15:
     - /^dev-.*/
 
 
-build-image:
+build-image-1-17:
   stage: build-image
+  needs: ["build-1-17"]
   script:
     - echo 下载安装包
     - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.17-1.0.1.tar.gz ./
@@ -69,6 +70,7 @@ build-image:
 
 build-image-1-15:
   stage: build-image
+  needs: [ "build-1-15" ]
   script:
     - echo 下载安装包
     - mkdir deploy && cd deploy && coscli cp cos://flink-checkpoint-1251517753/data/lib/dinky/dinky-1.15-1.0.1.tar.gz ./
