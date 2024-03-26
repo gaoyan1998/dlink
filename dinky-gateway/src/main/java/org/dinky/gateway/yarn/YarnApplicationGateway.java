@@ -38,12 +38,9 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
 
 /**
  * YarnApplicationGateway
@@ -51,8 +48,6 @@ import cn.hutool.core.io.FileUtil;
  * @since 2021/10/29
  */
 public class YarnApplicationGateway extends YarnGateway {
-    private final String tmpConfDir = String.format(
-            "%s/tmp/%s", System.getProperty("user.dir"), UUID.randomUUID().toString());
 
     @Override
     public GatewayType getType() {
@@ -103,17 +98,5 @@ public class YarnApplicationGateway extends YarnGateway {
             close();
         }
         return result;
-    }
-
-    private File preparSqlFile() {
-        File tempSqlFile =
-                new File(String.format("%s/%s", tmpConfDir, configuration.get(CustomerConfigureOptions.EXEC_SQL_FILE)));
-        String sql = config == null ? "" : config.getSql();
-        FileUtil.writeString(Optional.ofNullable(sql).orElse(""), tempSqlFile.getAbsolutePath(), "UTF-8");
-        return tempSqlFile;
-    }
-
-    public boolean close() {
-        return FileUtil.del(tmpConfDir);
     }
 }
