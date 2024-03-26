@@ -211,6 +211,7 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
                 try (ClusterClient<String> client = clusterClient.getClusterClient()) {
                     logger.info("Start get job list ....");
 //                    Collection<JobStatusMessage> jobList = client.listJobs().get(15, TimeUnit.SECONDS);
+                    logger.info("Get K8S url:{}", client.getWebInterfaceURL());
                     FlinkAPI api = FlinkAPI.build(client.getWebInterfaceURL());
                     List<JsonNode> jobList = api.listJobs();
                     logger.info("Get K8S Job list: {}", jobList);
@@ -230,7 +231,7 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
                 } catch (GatewayException e) {
                     throw e;
                 } catch (Exception ex) {
-                    logger.error("Get job status failed,{}", ex.getMessage());
+                    logger.error("Get job status failed", ex);
                 }
             }
             Thread.sleep(5000);
