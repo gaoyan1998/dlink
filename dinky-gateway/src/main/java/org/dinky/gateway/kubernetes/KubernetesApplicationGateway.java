@@ -19,6 +19,7 @@
 
 package org.dinky.gateway.kubernetes;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.dinky.assertion.Asserts;
 import org.dinky.context.FlinkUdfPathContextHolder;
 import org.dinky.data.enums.GatewayType;
@@ -209,20 +210,22 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
                 }
                 try (ClusterClient<String> client = clusterClient.getClusterClient()) {
                     logger.info("Start get job list ....");
-                    Collection<JobStatusMessage> jobList = client.listJobs().get(15, TimeUnit.SECONDS);
+//                    Collection<JobStatusMessage> jobList = client.listJobs().get(15, TimeUnit.SECONDS);
+                    FlinkAPI api = FlinkAPI.build(client.getWebInterfaceURL());
+                    List<JsonNode> jobList = api.listJobs();
                     logger.info("Get K8S Job list: {}", jobList);
                     if (jobList.isEmpty()) {
                         logger.error("Get job is empty, will be reconnect later....");
                         continue;
                     }
-                    JobStatusMessage job = jobList.stream().findFirst().get();
-                    JobStatus jobStatus = client.getJobStatus(job.getJobId()).get();
+//                    JobStatusMessage job = jobList.stream().findFirst().get();
+//                    JobStatus jobStatus = client.getJobStatus(job.getJobId()).get();
                     // To create a cluster ID, you need to combine the cluster ID with the jobID to ensure uniqueness
                     String cid = configuration.getString(KubernetesConfigOptions.CLUSTER_ID)
-                            + job.getJobId().toHexString();
-                    logger.info("Success get job status:{}", jobStatus);
+                            + jobList.get(0).get("jid").asText();
+                    logger.info("Success get job status:");
                     return result.setWebURL(client.getWebInterfaceURL())
-                            .setJids(Collections.singletonList(job.getJobId().toHexString()))
+                            .setJids(Collections.singletonList(jobList.get(0).get("jid").asText()))
                             .setId(cid);
                 } catch (GatewayException e) {
                     throw e;
