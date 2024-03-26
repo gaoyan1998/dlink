@@ -25,7 +25,7 @@ import org.dinky.trans.ExtendOperation;
 import org.dinky.trans.parse.ExecuteJarParseStrategy;
 import org.dinky.utils.URLUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.http.util.TextUtils;
 import org.apache.flink.api.dag.Pipeline;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
@@ -119,7 +119,7 @@ public class ExecuteJarOperation extends AbstractOperation implements ExtendOper
 
     public static List<String> extractArgs(String args) {
         List<String> programArgs = new ArrayList<>();
-        if (StringUtils.isNotEmpty(args)) {
+        if (!TextUtils.isEmpty(args)) {
             String[] array = args.split("\\s+");
             Iterator<String> iter = Arrays.asList(array).iterator();
             while (iter.hasNext()) {
