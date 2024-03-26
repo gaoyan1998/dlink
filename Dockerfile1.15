@@ -44,7 +44,10 @@ RUN set -eux && \
     rm -rf /dinky/lib/log4j* && \
     chmod -R 777 /opt/flink/lib && \
     chmod -R 777 /dinky/ && \
-    curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
+    chmod 777 /docker-entrypoint.sh && \
+    sed -i '2i source /opt/app/pro-password.sh\necho ${MYSQL_READ_URL}' /docker-entrypoint.sh && \
+    sed -i '$a source /opt/app/pro-password.sh\necho ${MYSQL_READ_URL}' /etc/profile
+#    curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
 
 
 
