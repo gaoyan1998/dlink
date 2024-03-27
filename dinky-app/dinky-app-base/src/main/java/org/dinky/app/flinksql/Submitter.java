@@ -276,7 +276,9 @@ public class Submitter {
                 // 获取main方法
                 Method mainMethod = clazz.getMethod("main", String[].class);
                 // 执行main方法
-                mainMethod.invoke(null, (Object) ExecuteJarOperation.extractArgs(submitParam.getArgs().trim()).toArray(new String[0]));
+                String[] arggs = ExecuteJarOperation.extractArgs(submitParam.getArgs().trim()).toArray(new String[0]);
+                log.error(Arrays.toString(arggs));
+                mainMethod.invoke(null, (Object) arggs);
 
                 break;
             }
