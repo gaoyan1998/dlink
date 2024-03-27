@@ -194,4 +194,10 @@ public abstract class KubernetesGateway extends AbstractGateway {
         }
         return true;
     }
+
+    @Override
+    public boolean onJobFinishCallback(String status) {
+        killCluster();
+        return true;
+    }
 }
