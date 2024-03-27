@@ -249,6 +249,9 @@ public final class VariableManager {
         while (m.find()) {
             String key = m.group(1);
             Object value = getVariable(key);
+            if (value instanceof String){
+                value = "\"" + value +"\"";
+            }
             m.appendReplacement(sb, "");
             sb.append(value == null ? "" : value);
         }
