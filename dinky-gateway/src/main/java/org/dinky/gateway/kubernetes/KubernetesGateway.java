@@ -20,6 +20,7 @@
 package org.dinky.gateway.kubernetes;
 
 import org.dinky.assertion.Asserts;
+import org.dinky.data.enums.JobStatus;
 import org.dinky.data.enums.Status;
 import org.dinky.gateway.AbstractGateway;
 import org.dinky.gateway.config.FlinkConfig;
@@ -196,7 +197,15 @@ public abstract class KubernetesGateway extends AbstractGateway {
 
     @Override
     public boolean onJobFinishCallback(String status) {
-        killCluster();
+        String jobName = config.getFlinkConfig().getJobName();
+        if (status.equals(JobStatus.FINISHED.getValue()) || status.equals(JobStatus.CANCELED.getValue()) ) {
+            logger.info(
+                    "start handle job {} done on application mode, job status is {}, the cluster"
+                            + " will be delete later..",
+                    jobName,
+                    status);
+            killCluster();
+        }
         return true;
     }
 }
