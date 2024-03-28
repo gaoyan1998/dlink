@@ -25,6 +25,7 @@ import org.dinky.data.dto.APISavePointTaskDTO;
 import org.dinky.data.dto.TaskDTO;
 import org.dinky.data.dto.TaskSubmitDto;
 import org.dinky.data.enums.BusinessType;
+import org.dinky.data.enums.JobStatus;
 import org.dinky.data.enums.Status;
 import org.dinky.data.exception.NotSupportExplainExcepition;
 import org.dinky.data.model.job.JobInstance;
@@ -158,7 +159,11 @@ public class APIController {
             dataTypeClass = Integer.class)
     public Result<JobInstance> getJobInstance(@RequestParam Integer id) {
         jobInstanceService.initTenantByJobInstanceId(id);
-        return Result.succeed(jobInstanceService.getById(id));
+        JobInstance byId = jobInstanceService.getById(id);
+        if (byId.getStatus().equals(JobStatus.UNKNOWN.getValue())) {
+            byId.setStatus(JobStatus.FINISHED.getValue());
+        }
+        return Result.succeed(byId, "获取成功");
     }
 
     @GetMapping("/getJobInstanceByTaskId")
