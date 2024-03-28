@@ -253,17 +253,19 @@ public class JobManager {
 
     @ProcessStep(type = ProcessStepType.SUBMIT_EXECUTE)
     public JobResult executeJarSql(String statement) throws Exception {
-
+        List<String> statements = Arrays.stream(SqlUtil.getStatements(statement))
+                .map(t -> executor.pretreatStatement(t))
+                .collect(Collectors.toList());
+        statement = String.join(";\n", statements);
+        jobParam =
+                Explainer.build(executor, useStatementSet, this).pretreatStatements(SqlUtil.getStatements(statement));
         job = Job.build(runMode, config, executorConfig, executor, statement, useGateway);
         ready();
 //        JobJarStreamGraphBuilder jobJarStreamGraphBuilder = JobJarStreamGraphBuilder.build(this);
 //        StreamGraph streamGraph = jobJarStreamGraphBuilder.getJarStreamGraph(statement, getDinkyClassLoader());
         Configuration configuration =
                 executor.getCustomTableEnvironment().getConfig().getConfiguration();
-        List<String> statements = Arrays.stream(SqlUtil.getStatements(statement))
-                .map(t -> executor.pretreatStatement(t))
-                .collect(Collectors.toList());
-        statement = String.join(";\n", statements);
+
         if (Asserts.isNotNullString(config.getSavePointPath())) {
 //            streamGraph.setSavepointRestoreSettings(SavepointRestoreSettings.forPath(
 //                    config.getSavePointPath(),
