@@ -168,6 +168,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
 
     @Override
     public void killCluster() {
+        log.info("开始删除集群===="+config.getClusterConfig().getAppId());
         if (Asserts.isNull(k8sClientHelper.getClient())) {
             initConfig();
         }
