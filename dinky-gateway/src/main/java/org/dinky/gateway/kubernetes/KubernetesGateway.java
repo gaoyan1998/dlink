@@ -173,7 +173,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
             initConfig();
         }
         addConfigParas(
-                KubernetesConfigOptions.CLUSTER_ID, config.getClusterConfig().getAppId());
+                KubernetesConfigOptions.CLUSTER_ID, config.getFlinkConfig().getJobName());
         KubernetesClusterClientFactory clusterClientFactory = new KubernetesClusterClientFactory();
         String clusterId = clusterClientFactory.getClusterId(configuration);
         if (Asserts.isNull(clusterId)) {
