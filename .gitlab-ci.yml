@@ -46,7 +46,6 @@ stages:
 
 build-image-1-17:
   stage: build
-  needs: ["build-1-17"]
   script:
     - echo 开始构建
     - cp /usr/local/bin/coscli ./
