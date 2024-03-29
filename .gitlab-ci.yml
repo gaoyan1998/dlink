@@ -8,7 +8,7 @@ build-ui:
   stage: build-ui
   script:
     - echo 打包镜像
-    - docker build -t dinky:ui-1.0 -f ./sp-docker/Dockerfile-117-ui .
+    - docker build -t dinky:ui-1.0 -f ./sp-docker/Dockerfile-ui .
     - echo UI镜像打包完成
   tags:
     - dinky
@@ -17,14 +17,13 @@ build-ui:
 
 build-image-1-17:
   stage: build
+  needs: [ "build-ui" ]
   script:
     - echo 开始构建
     - cp /usr/local/bin/coscli ./
     - cp ~/.cos.yaml  ./
     - echo 打包镜像
-    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_ADDRESS}
-    - docker build -t ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.1 -f Dockerfile-117 .
-    - docker push ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.1
+    - docker build -t ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.1 -f ./sp-docker/Dockerfile-117 .
     - echo 镜像打包完成
   tags:
     - dinky
@@ -33,10 +32,11 @@ build-image-1-17:
 
 push-image:
   stage: push-image
-  needs: ["build-ui"]
+  needs: ["build-image-1-17"]
   script:
+    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_ADDRESS}
     - docker push ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.1
-    - echo 镜像打包完成
+    - echo 镜像上传完成
   tags:
     - dinky
   only:
