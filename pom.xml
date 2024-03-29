@@ -961,13 +961,13 @@
             <repositories>
                 <repository>
                     <id>aliyun</id>
-                    <url>https://maven.aliyun.com/repository/central</url>
+                    <url>http://10.2.4.16:8081/repository/maven-public</url>
                 </repository>
             </repositories>
             <pluginRepositories>
                 <pluginRepository>
                     <id>aliyun</id>
-                    <url>https://maven.aliyun.com/repository/central</url>
+                    <url>http://10.2.4.16:8081/repository/maven-public</url>
                 </pluginRepository>
             </pluginRepositories>
         </profile>

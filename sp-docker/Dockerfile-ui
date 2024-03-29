@@ -1,0 +1,12 @@
+FROM  node:18.15.0-alpine3.17
+WORKDIR /user/src/app
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV UMI_ENV=production
+
+# 单独分离 package.json，是为了安装依赖可最大限度利用缓存
+ADD ./dinky-web/package.json /user/src/app/package.json
+RUN npm config set registry http://10.2.4.16:8081/repository/group-npm && \
+    npm install --legacy-peer-deps
+ADD ./dinky-web .
+RUN npm run build

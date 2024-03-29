@@ -19,31 +19,19 @@ RUN chmod +x /usr/local/bin/coscli && \
 #    rm -rf /var/lib/apt/lists && \
 #    rm -rf /var/cache
 
-
 #sudo -E /opt/goosefs-lite-1.0.4/bin/goosefs-lite mount -o"ro,allow_other" /opt/app/ cosn://flink-checkpoint-1251517753/data/app/dev/
 
-
-
-FROM  node:18.15.0-alpine3.17 AS ui-build
+FROM  dinky:ui-1.0 AS ui-build
 WORKDIR /user/src/app
 
-ENV NODE_OPTIONS=--openssl-legacy-provider
-ENV UMI_ENV=production
-
-# 单独分离 package.json，是为了安装依赖可最大限度利用缓存
-ADD dinky-web/package.json /user/src/app/package.json
-RUN npm config set registry http://10.2.4.16:8081/repository/group-npm && \
-    npm install --legacy-peer-deps
-ADD ./dinky-web .
-RUN npm run build
 
 FROM maven:3.9.6-amazoncorretto-11 AS build
 WORKDIR /user/src/app
-ADD pom.xml pom.xml
-RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11,sopei
+ADD ../pom.xml pom.xml
+RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11,aliyun
 ADD . .
 COPY --from=ui-build /user/src/app/dist/ /user/src/app/dinky-web/dist/
-RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,1.17,jdk11,fast,sopei && \
+RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,1.17,jdk11,fast,aliyun && \
     cd build && \
     tar -xvf dinky-release-1.17-1.0.1.tar.gz && \
     mv dinky-release-1.17-1.0.1 /dinky
