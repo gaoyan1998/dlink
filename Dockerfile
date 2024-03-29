@@ -39,7 +39,6 @@ RUN set -eux && \
     cp /opt/flink/opt/flink-s3-fs-presto-*.jar /opt/flink/plugins/s3-fs-presto/ && \
     rm -rf /opt/flink/lib/flink-table-planner-loader* && \
     mv  /opt/flink/opt/flink-table-planner_2.12-1.17.2.jar /opt/flink/lib && \
-    cp -r /opt/flink/lib/* /dinky/extends/ && \
     mv /dinky/jar/dinky-app-*.jar /opt/flink/lib && \
     rm -rf /dinky/lib/log4j* && \
     chmod -R 777 /opt/flink/lib && \

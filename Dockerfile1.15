@@ -39,7 +39,6 @@ RUN set -eux && \
     cp /opt/flink/opt/flink-s3-fs-presto-*.jar /opt/flink/plugins/s3-fs-presto/ && \
     rm -rf /opt/flink/lib/flink-table-planner-loader* && \
     mv  /opt/flink/opt/flink-table-planner_2.12-1.15.2.jar /opt/flink/lib && \
-    cp -r /opt/flink/lib/* /dinky/extends/ && \
     mv /dinky/jar/dinky-app-*.jar /opt/flink/lib && \
     rm -rf /dinky/lib/log4j* && \
     chmod -R 777 /opt/flink/lib && \
@@ -47,7 +46,7 @@ RUN set -eux && \
     chmod 777 /docker-entrypoint.sh && \
     sed -i '2i source /opt/app/pro-password.sh\necho ${MYSQL_READ_URL}' /docker-entrypoint.sh && \
     sed -i '$a source /opt/app/pro-password.sh\necho ${MYSQL_READ_URL}' /etc/profile
-#    curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
+    curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
 
 
 
