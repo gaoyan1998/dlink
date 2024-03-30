@@ -7,7 +7,7 @@
             <id>aliyun-proxy</id>
             <mirrorOf>*</mirrorOf>
             <name>Nexus</name>
-            <url>http://nexus.middle-server:8081/repository/maven-public</url>
+            <url>http://10.2.4.16:8081/repository/maven-public</url>
         </mirror>
     </mirrors>
 
@@ -15,7 +15,7 @@
         <repository>
             <id>aliyun-proxy</id>
             <name>代理阿里云</name>
-            <url>http://nexus.middle-server:8081/repository/maven-public</url>
+            <url>http://10.2.4.16:8081/repository/maven-public</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>
