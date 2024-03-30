@@ -27,7 +27,7 @@ WORKDIR /user/src/app
 
 FROM maven:3.9.6-amazoncorretto-11 AS build
 WORKDIR /user/src/app
-ADD ./tmp-code/* .
+ADD ./tmp-code/ .
 ADD ./settings.xml /usr/share/maven/conf/settings.xml
 RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11
 ADD . .
