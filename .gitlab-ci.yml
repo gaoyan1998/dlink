@@ -22,6 +22,11 @@ build-image-1-17:
     - echo 开始构建
     - cp /usr/local/bin/coscli ./
     - cp ~/.cos.yaml  ./
+    - mkdir tmp-code &&  cp -r `ls -A | grep dinky| grep -v "dinky-web"` pom.xml tmp-code
+    - find tmp-code -name '*.java' -type f  -exec rm {} +
+    - find tmp-code -name '*.json' -type f  -exec rm {} +
+    - find tmp-code -name '*.yml' -type f  -exec rm {} +
+    - find tmp-code -name '*Mapper.xml' -type f  -exec rm {} +
     - echo 打包镜像
     - docker build -t ${REGISTRY_ADDRESS}/release/bigdata/dinky:flink-1.17-1.0.1 -f ./sp-docker/Dockerfile-117 .
     - echo 镜像打包完成

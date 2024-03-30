@@ -4,18 +4,18 @@
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <mirrors>
         <mirror>
-            <id>sopei</id>
-            <url>http://10.2.4.16:8081/repository/maven-public/</url>
+            <id>aliyun-proxy</id>
             <mirrorOf>*</mirrorOf>
+            <name>Nexus</name>
+            <url>http://nexus.middle-server:8081/repository/maven-public</url>
         </mirror>
     </mirrors>
 
     <repositories>
         <repository>
             <id>aliyun-proxy</id>
-            <name>私有阿里云</name>
-<!--            <url>http://114.132.226.171:8081/repository/maven-public/</url>-->
-            <url>http://10.2.4.16:8081/repository/maven-public/</url>
+            <name>代理阿里云</name>
+            <url>http://nexus.middle-server:8081/repository/maven-public</url>
             <layout>default</layout>
             <releases>
                 <enabled>true</enabled>

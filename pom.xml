@@ -961,32 +961,13 @@
             <repositories>
                 <repository>
                     <id>aliyun</id>
-                    <url>http://10.2.4.16:8081/repository/maven-public</url>
+                    <url>https://maven.aliyun.com/repository/central</url>
                 </repository>
             </repositories>
             <pluginRepositories>
                 <pluginRepository>
                     <id>aliyun</id>
-                    <url>http://10.2.4.16:8081/repository/maven-public</url>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-
-        <profile>
-            <id>sopei</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>sopei</id>
-                    <url>http://10.2.4.16:8081/repository/maven-public</url>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>sopei</id>
-                    <url>http://10.2.4.16:8081/repository/maven-public</url>
+                    <url>https://maven.aliyun.com/repository/central</url>
                 </pluginRepository>
             </pluginRepositories>
         </profile>

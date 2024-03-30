@@ -27,11 +27,12 @@ WORKDIR /user/src/app
 
 FROM maven:3.9.6-amazoncorretto-11 AS build
 WORKDIR /user/src/app
-ADD ./pom.xml pom.xml
-RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11,aliyun
+ADD ./tmp-code/* .
+ADD ./settings.xml /usr/share/maven/conf/settings.xml
+RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11
 ADD . .
 COPY --from=ui-build /user/src/app/dist/ /user/src/app/dinky-web/dist/
-RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,1.17,jdk11,fast,aliyun && \
+RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,1.17,jdk11,fast && \
     cd build && \
     tar -xvf dinky-release-1.17-1.0.1.tar.gz && \
     mv dinky-release-1.17-1.0.1 /dinky
