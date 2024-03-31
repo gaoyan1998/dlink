@@ -19,6 +19,9 @@
 
 package org.dinky.gateway.kubernetes;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
+import org.apache.flink.configuration.*;
 import org.dinky.assertion.Asserts;
 import org.dinky.data.enums.JobStatus;
 import org.dinky.data.enums.Status;
@@ -30,10 +33,6 @@ import org.dinky.gateway.kubernetes.utils.K8sClientHelper;
 import org.dinky.gateway.result.SavePointResult;
 import org.dinky.gateway.result.TestResult;
 
-import org.apache.flink.configuration.CoreOptions;
-import org.apache.flink.configuration.DeploymentOptions;
-import org.apache.flink.configuration.GlobalConfiguration;
-import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.kubernetes.KubernetesClusterClientFactory;
 import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
@@ -50,6 +49,7 @@ import cn.hutool.core.util.ReflectUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.dinky.utils.TextUtil;
 
 /**
  * KubernetesGateway
@@ -64,6 +64,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
     protected K8sConfig k8sConfig;
 
     private K8sClientHelper k8sClientHelper;
+    private String tmpConfDir = String.format("%s/tmp/kubernets/%s", System.getProperty("user.dir"), UUID.randomUUID());
 
     public KubernetesGateway() {}
 
@@ -97,8 +98,21 @@ public abstract class KubernetesGateway extends AbstractGateway {
             configuration.removeConfig(PythonOptions.PYTHON_FILES);
             resetCheckpointInApplicationMode(flinkConfig.getJobName());
         }
-
+        preparPodTemplate(k8sConfig.getJmPodTemplate(), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
+        preparPodTemplate(k8sConfig.getTmPodTemplate(), KubernetesConfigOptions.TASK_MANAGER_POD_TEMPLATE);
+        preparPodTemplate(k8sConfig.getKubeConfig(), KubernetesConfigOptions.KUBE_CONFIG_FILE);
         k8sClientHelper = new K8sClientHelper(configuration, k8sConfig);
+    }
+
+    protected void preparPodTemplate(String podTemplate, ConfigOption<String> option) {
+        if (!TextUtil.isEmpty(podTemplate)) {
+            String filePath = String.format("%s/%s.yaml", tmpConfDir, option.key());
+            if (FileUtil.exist(filePath)) {
+                Assert.isTrue(FileUtil.del(filePath));
+            }
+            FileUtil.writeUtf8String(podTemplate, filePath);
+            addConfigParas(option, filePath);
+        }
     }
 
     public SavePointResult savepointCluster(String savePoint) {
@@ -189,6 +203,11 @@ public abstract class KubernetesGateway extends AbstractGateway {
     }
 
     public boolean close() {
+        try {
+            FileUtil.del(tmpConfDir);
+        }catch (Exception e){
+            log.warn(e.getMessage());
+        }
         if (k8sClientHelper != null) {
             return k8sClientHelper.close();
         }

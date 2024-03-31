@@ -71,9 +71,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KubernetesApplicationGateway extends KubernetesGateway {
 
-    private final String tmpConfDir =
-            String.format("%s/tmp/kubernets/%s", System.getProperty("user.dir"), UUID.randomUUID());
-
     /**
      * @return The type of the Kubernetes gateway, which is GatewayType.KUBERNETES_APPLICATION.
      */
@@ -95,9 +92,6 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
         options.setPrettyFlow(true);
         Yaml yaml = new Yaml(representer, options);
         preparPodTemplate(yaml.dump(decoratedPodTemplate), KubernetesConfigOptions.KUBERNETES_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getJmPodTemplate(), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getTmPodTemplate(), KubernetesConfigOptions.TASK_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getKubeConfig(), KubernetesConfigOptions.KUBE_CONFIG_FILE);
     }
 
     /**
@@ -240,19 +234,4 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
                 "The number of retries exceeds the limit, check the K8S cluster for more information");
     }
 
-    private void preparPodTemplate(String podTemplate, ConfigOption<String> option) {
-        if (!TextUtil.isEmpty(podTemplate)) {
-            String filePath = String.format("%s/%s.yaml", tmpConfDir, option.key());
-            if (FileUtil.exist(filePath)) {
-                Assert.isTrue(FileUtil.del(filePath));
-            }
-            FileUtil.writeUtf8String(podTemplate, filePath);
-            addConfigParas(option, filePath);
-        }
-    }
-
-    public boolean close() {
-        super.close();
-        return FileUtil.del(tmpConfDir);
-    }
 }
