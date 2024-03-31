@@ -9,11 +9,12 @@ RUN chmod +x /usr/local/bin/coscli && \
     coscli cp cos://flink-checkpoint-1251517753/data/lib/sources.list /etc/apt/ && \
     coscli cp cos://flink-checkpoint-1251517753/data/lib/goosefs-lite-1.0.4.tar /opt && \
     cd /opt && tar -xf goosefs-lite-1.0.4.tar && \
-    apt-get update && \
-    apt-get install  -y libfuse-dev sudo && \
     chmod -R 777 /opt && \
     mkdir -m 777 -p /data/goosefs/logs/fuse && \
     chmod -R 777 /data && \
+    chmod -R 777 /tmp && \
+    apt-get update && \
+    apt-get install  -y libfuse-dev sudo && \
     ln -snf /user/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "flink          ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers  && \
     rm -rf /var/lib/apt/lists && \
