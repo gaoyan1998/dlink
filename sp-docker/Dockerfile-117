@@ -15,11 +15,11 @@ RUN chmod +x /usr/local/bin/coscli && \
     mkdir -m 777 -p /data/goosefs/logs/fuse && \
     chmod -R 777 /data && \
     ln -snf /user/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    echo "flink          ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
-#    rm -rf /var/lib/apt/lists && \
-#    rm -rf /var/cache
+    echo "flink          ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers  && \
+    rm -rf /var/lib/apt/lists && \
+    rm -rf /var/cache
 
-#sudo -E /opt/goosefs-lite-1.0.4/bin/goosefs-lite mount -o"ro,allow_other" /opt/app/ cosn://flink-checkpoint-1251517753/data/app/dev/
+#sudo -E /opt/goosefs-lite-1.0.4/bin/goosefs-lite mount -o"ro,allow_other" /opt/cos/ cosn://flink-checkpoint-1251517753/data/app/dev/
 
 FROM  dinky:ui-1.0 AS ui-build
 WORKDIR /user/src/app
@@ -41,6 +41,8 @@ FROM base
 
 COPY --from=build /dinky /dinky
 
+ADD ./sp-docker /init_cos.sh
+
 RUN set -eux && \
     mkdir ./plugins/s3-fs-hadoop && \
     cp /opt/flink/opt/flink-s3-fs-hadoop-*.jar /opt/flink/plugins/s3-fs-hadoop/ && \
@@ -53,6 +55,7 @@ RUN set -eux && \
     chmod -R 777 /opt/ && \
     chmod -R 777 /dinky/ && \
     rm -rf /opt/flink/opt && \
+    sed -i '2i sh /init_cos.sh' /docker-entrypoint.sh && \
     curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
 
 
