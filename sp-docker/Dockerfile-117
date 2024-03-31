@@ -42,7 +42,7 @@ FROM base
 
 COPY --from=build /dinky /dinky
 
-ADD ./sp-docker /init_cos.sh
+ADD ./sp-docker/init_cos.sh /init_cos.sh
 
 RUN set -eux && \
     mkdir ./plugins/s3-fs-hadoop && \
