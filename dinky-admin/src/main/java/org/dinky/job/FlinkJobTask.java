@@ -26,7 +26,6 @@ import org.dinky.daemon.task.DaemonTask;
 import org.dinky.daemon.task.DaemonTaskConfig;
 import org.dinky.data.model.ext.JobInfoDetail;
 import org.dinky.job.handler.JobAlertHandler;
-import org.dinky.job.handler.JobMetricsHandler;
 import org.dinky.job.handler.JobRefreshHandler;
 import org.dinky.service.JobInstanceService;
 import org.dinky.service.MonitorService;
@@ -71,12 +70,12 @@ public class FlinkJobTask implements DaemonTask {
         this.config = config;
         this.jobInfoDetail = jobInstanceService.getJobInfoDetail(config.getId());
         // Get a list of metrics and deduplicate them based on vertices and metrics
-//        monitorService
-//                .getMetricsLayoutByTaskId(jobInfoDetail.getInstance().getTaskId())
-//                .forEach(m -> {
-//                    verticesAndMetricsMap.putIfAbsent(m.getVertices(), new ConcurrentHashMap<>());
-//                    verticesAndMetricsMap.get(m.getVertices()).put(m.getMetrics(), "");
-//                });
+        //        monitorService
+        //                .getMetricsLayoutByTaskId(jobInfoDetail.getInstance().getTaskId())
+        //                .forEach(m -> {
+        //                    verticesAndMetricsMap.putIfAbsent(m.getVertices(), new ConcurrentHashMap<>());
+        //                    verticesAndMetricsMap.get(m.getVertices()).put(m.getMetrics(), "");
+        //                });
         return this;
     }
 
@@ -103,7 +102,7 @@ public class FlinkJobTask implements DaemonTask {
         boolean isDone = JobRefreshHandler.refreshJob(jobInfoDetail, isNeedSave());
         if (Asserts.isAllNotNull(jobInfoDetail.getClusterInstance())) {
             JobAlertHandler.getInstance().check(jobInfoDetail);
-//            JobMetricsHandler.refeshAndWriteFlinkMetrics(jobInfoDetail, verticesAndMetricsMap);
+            //            JobMetricsHandler.refeshAndWriteFlinkMetrics(jobInfoDetail, verticesAndMetricsMap);
         }
         return isDone;
     }

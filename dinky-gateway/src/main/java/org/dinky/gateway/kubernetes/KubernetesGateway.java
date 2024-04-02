@@ -19,9 +19,6 @@
 
 package org.dinky.gateway.kubernetes;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
-import org.apache.flink.configuration.*;
 import org.dinky.assertion.Asserts;
 import org.dinky.data.enums.JobStatus;
 import org.dinky.data.enums.Status;
@@ -32,7 +29,13 @@ import org.dinky.gateway.exception.GatewayException;
 import org.dinky.gateway.kubernetes.utils.K8sClientHelper;
 import org.dinky.gateway.result.SavePointResult;
 import org.dinky.gateway.result.TestResult;
+import org.dinky.utils.TextUtil;
 
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.CoreOptions;
+import org.apache.flink.configuration.DeploymentOptions;
+import org.apache.flink.configuration.GlobalConfiguration;
+import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.kubernetes.KubernetesClusterClientFactory;
 import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
@@ -44,12 +47,14 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.UUID;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.text.StrFormatter;
 import cn.hutool.core.util.ReflectUtil;
+import io.fabric8.kubernetes.api.model.Pod;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.dinky.utils.TextUtil;
 
 /**
  * KubernetesGateway
@@ -62,6 +67,10 @@ public abstract class KubernetesGateway extends AbstractGateway {
     protected String flinkConfigPath;
     protected FlinkConfig flinkConfig;
     protected K8sConfig k8sConfig;
+
+    private Pod jmPodTemplate;
+    private Pod tmPodTemplate;
+    private Pod defaultPodTemplate;
 
     private K8sClientHelper k8sClientHelper;
     private String tmpConfDir = String.format("%s/tmp/kubernets/%s", System.getProperty("user.dir"), UUID.randomUUID());
@@ -98,10 +107,25 @@ public abstract class KubernetesGateway extends AbstractGateway {
             configuration.removeConfig(PythonOptions.PYTHON_FILES);
             resetCheckpointInApplicationMode(flinkConfig.getJobName());
         }
-        preparPodTemplate(k8sConfig.getJmPodTemplate(), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
-        preparPodTemplate(k8sConfig.getTmPodTemplate(), KubernetesConfigOptions.TASK_MANAGER_POD_TEMPLATE);
+
         preparPodTemplate(k8sConfig.getKubeConfig(), KubernetesConfigOptions.KUBE_CONFIG_FILE);
-        k8sClientHelper = new K8sClientHelper(configuration, k8sConfig);
+        k8sClientHelper = new K8sClientHelper(configuration, k8sConfig.getKubeConfig());
+
+        String sql = config.getSql();
+        defaultPodTemplate = k8sClientHelper.decoratePodTemplate(sql, k8sConfig.getPodTemplate());
+        preparPodTemplate(
+                k8sClientHelper.dumpPod2Str(defaultPodTemplate), KubernetesConfigOptions.KUBERNETES_POD_TEMPLATE);
+
+        if (!TextUtil.isEmpty(k8sConfig.getJmPodTemplate())) {
+            jmPodTemplate = k8sClientHelper.decoratePodTemplate(sql, k8sConfig.getJmPodTemplate());
+            preparPodTemplate(
+                    k8sClientHelper.dumpPod2Str(jmPodTemplate), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
+        }
+        if (!TextUtil.isEmpty(k8sConfig.getTmPodTemplate())) {
+            tmPodTemplate = k8sClientHelper.decoratePodTemplate(sql, k8sConfig.getJmPodTemplate());
+            preparPodTemplate(
+                    k8sClientHelper.dumpPod2Str(tmPodTemplate), KubernetesConfigOptions.JOB_MANAGER_POD_TEMPLATE);
+        }
     }
 
     protected void preparPodTemplate(String podTemplate, ConfigOption<String> option) {
@@ -116,9 +140,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
     }
 
     public SavePointResult savepointCluster(String savePoint) {
-        if (Asserts.isNull(k8sClientHelper.getClient())) {
-            initConfig();
-        }
+        initConfig();
 
         KubernetesClusterClientFactory clusterClientFactory = new KubernetesClusterClientFactory();
         addConfigParas(
@@ -135,9 +157,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
     }
 
     public SavePointResult savepointJob(String savePoint) {
-        if (Asserts.isNull(k8sClientHelper.getClient())) {
-            initConfig();
-        }
+        initConfig();
         if (Asserts.isNull(config.getFlinkConfig().getJobId())) {
             throw new GatewayException(
                     "No job id was specified. Please specify a job to which you would like to" + " savepont.");
@@ -183,7 +203,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
 
     @Override
     public void killCluster() {
-        log.info("开始删除集群===="+config.getFlinkConfig().getJobName());
+        log.info("开始删除集群====" + config.getFlinkConfig().getJobName());
         initConfig();
         addConfigParas(
                 KubernetesConfigOptions.CLUSTER_ID, config.getFlinkConfig().getJobName());
@@ -205,7 +225,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
     public boolean close() {
         try {
             FileUtil.del(tmpConfDir);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.warn(e.getMessage());
         }
         if (k8sClientHelper != null) {
@@ -217,7 +237,7 @@ public abstract class KubernetesGateway extends AbstractGateway {
     @Override
     public boolean onJobFinishCallback(String status) {
         String jobName = config.getFlinkConfig().getJobName();
-        if (status.equals(JobStatus.FINISHED.getValue()) || status.equals(JobStatus.CANCELED.getValue()) ) {
+        if (status.equals(JobStatus.FINISHED.getValue()) || status.equals(JobStatus.CANCELED.getValue())) {
             logger.info(
                     "start handle job {} done on application mode, job status is {}, the cluster"
                             + " will be delete later..",

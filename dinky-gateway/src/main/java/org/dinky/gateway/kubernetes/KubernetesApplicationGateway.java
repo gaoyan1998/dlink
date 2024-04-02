@@ -19,7 +19,6 @@
 
 package org.dinky.gateway.kubernetes;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.dinky.assertion.Asserts;
 import org.dinky.context.FlinkUdfPathContextHolder;
 import org.dinky.data.enums.GatewayType;
@@ -29,35 +28,25 @@ import org.dinky.gateway.exception.GatewayException;
 import org.dinky.gateway.kubernetes.utils.IgnoreNullRepresenter;
 import org.dinky.gateway.result.GatewayResult;
 import org.dinky.gateway.result.KubernetesResult;
-import org.dinky.utils.TextUtil;
 
-import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.deployment.application.ApplicationConfiguration;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.ClusterClientProvider;
-import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.kubernetes.utils.Constants;
-import org.apache.flink.runtime.client.JobStatusMessage;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Assert;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import cn.hutool.core.text.StrFormatter;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -77,21 +66,6 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
     @Override
     public GatewayType getType() {
         return GatewayType.KUBERNETES_APPLICATION;
-    }
-
-    @Override
-    public void init() {
-        super.init();
-        Pod decoratedPodTemplate = getK8sClientHelper().decoratePodTemplate(config.getSql());
-        // use snakyaml to serialize the pod
-        Representer representer = new IgnoreNullRepresenter();
-        // set the label of the Map type, only the map type will not print the class name when dumping
-        representer.addClassTag(Pod.class, Tag.MAP);
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setPrettyFlow(true);
-        Yaml yaml = new Yaml(representer, options);
-        preparPodTemplate(yaml.dump(decoratedPodTemplate), KubernetesConfigOptions.KUBERNETES_POD_TEMPLATE);
     }
 
     /**
@@ -204,23 +178,25 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
                 }
                 try (ClusterClient<String> client = clusterClient.getClusterClient()) {
                     logger.info("Start get job list ....");
-//                    Collection<JobStatusMessage> jobList = client.listJobs().get(15, TimeUnit.SECONDS);
-                    logger.info("Get K8S url:{}", client.getWebInterfaceURL().replace("http://",""));
-                    FlinkAPI api = FlinkAPI.build(client.getWebInterfaceURL().replace("http://",""));
+                    //                    Collection<JobStatusMessage> jobList = client.listJobs().get(15,
+                    // TimeUnit.SECONDS);
+                    logger.info("Get K8S url:{}", client.getWebInterfaceURL().replace("http://", ""));
+                    FlinkAPI api = FlinkAPI.build(client.getWebInterfaceURL().replace("http://", ""));
                     List<JsonNode> jobList = api.listJobs();
                     logger.info("Get K8S Job list: {}", jobList);
                     if (jobList.isEmpty()) {
                         logger.error("Get job is empty, will be reconnect later....");
                         continue;
                     }
-//                    JobStatusMessage job = jobList.stream().findFirst().get();
-//                    JobStatus jobStatus = client.getJobStatus(job.getJobId()).get();
+                    //                    JobStatusMessage job = jobList.stream().findFirst().get();
+                    //                    JobStatus jobStatus = client.getJobStatus(job.getJobId()).get();
                     // To create a cluster ID, you need to combine the cluster ID with the jobID to ensure uniqueness
                     String cid = configuration.getString(KubernetesConfigOptions.CLUSTER_ID)
                             + jobList.get(0).get("jid").asText();
                     logger.info("Success get job status:");
                     return result.setWebURL(client.getWebInterfaceURL())
-                            .setJids(Collections.singletonList(jobList.get(0).get("jid").asText()))
+                            .setJids(Collections.singletonList(
+                                    jobList.get(0).get("jid").asText()))
                             .setId(cid);
                 } catch (GatewayException e) {
                     throw e;
@@ -233,5 +209,4 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
         throw new GatewayException(
                 "The number of retries exceeds the limit, check the K8S cluster for more information");
     }
-
 }

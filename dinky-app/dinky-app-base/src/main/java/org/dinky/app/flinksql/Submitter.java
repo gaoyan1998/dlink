@@ -23,7 +23,6 @@ import org.dinky.app.db.DBUtil;
 import org.dinky.app.model.StatementParam;
 import org.dinky.app.model.SysConfig;
 import org.dinky.app.util.FlinkAppUtil;
-import org.dinky.assertion.Asserts;
 import org.dinky.classloader.DinkyClassLoader;
 import org.dinky.config.Dialect;
 import org.dinky.constant.CustomerConfigureOptions;
@@ -44,25 +43,19 @@ import org.dinky.trans.parse.AddFileSqlParseStrategy;
 import org.dinky.trans.parse.AddJarSqlParseStrategy;
 import org.dinky.trans.parse.ExecuteJarParseStrategy;
 import org.dinky.url.RsURLStreamHandlerFactory;
-import org.dinky.utils.RunTimeUtil;
 import org.dinky.utils.SqlUtil;
 import org.dinky.utils.ZipUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.python.PythonOptions;
-import org.apache.flink.runtime.jobgraph.SavepointConfigOptions;
-import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.TableResult;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -253,22 +246,24 @@ public class Submitter {
         for (String statement : statements) {
             String sqlStatement = executor.pretreatStatement(statement);
             if (ExecuteJarParseStrategy.INSTANCE.match(sqlStatement)) {
-//                ExecuteJarOperation executeJarOperation = new ExecuteJarOperation(sqlStatement);
-//                StreamGraph streamGraph = executeJarOperation.getStreamGraph(executor.getCustomTableEnvironment());
-//                ReadableConfig configuration =
-//                        executor.getStreamExecutionEnvironment().getConfiguration();
-//                streamGraph
-//                        .getExecutionConfig()
-//                        .configure(configuration, Thread.currentThread().getContextClassLoader());
-//                streamGraph.getCheckpointConfig().configure(configuration);
-//                streamGraph.setJobName(executor.getExecutorConfig().getJobName());
-//                String savePointPath = executor.getExecutorConfig().getSavePointPath();
-//                if (Asserts.isNotNullString(savePointPath)) {
-//                    streamGraph.setSavepointRestoreSettings(SavepointRestoreSettings.forPath(
-//                            savePointPath, configuration.get(SavepointConfigOptions.SAVEPOINT_IGNORE_UNCLAIMED_STATE)));
-//                }
-//                JobClient client = executor.getStreamExecutionEnvironment().executeAsync(streamGraph);
-//                jobClient = Optional.of(client);
+                //                ExecuteJarOperation executeJarOperation = new ExecuteJarOperation(sqlStatement);
+                //                StreamGraph streamGraph =
+                // executeJarOperation.getStreamGraph(executor.getCustomTableEnvironment());
+                //                ReadableConfig configuration =
+                //                        executor.getStreamExecutionEnvironment().getConfiguration();
+                //                streamGraph
+                //                        .getExecutionConfig()
+                //                        .configure(configuration, Thread.currentThread().getContextClassLoader());
+                //                streamGraph.getCheckpointConfig().configure(configuration);
+                //                streamGraph.setJobName(executor.getExecutorConfig().getJobName());
+                //                String savePointPath = executor.getExecutorConfig().getSavePointPath();
+                //                if (Asserts.isNotNullString(savePointPath)) {
+                //                    streamGraph.setSavepointRestoreSettings(SavepointRestoreSettings.forPath(
+                //                            savePointPath,
+                // configuration.get(SavepointConfigOptions.SAVEPOINT_IGNORE_UNCLAIMED_STATE)));
+                //                }
+                //                JobClient client = executor.getStreamExecutionEnvironment().executeAsync(streamGraph);
+                //                jobClient = Optional.of(client);
 
                 ExecuteJarOperation.JarSubmitParam submitParam = ExecuteJarOperation.JarSubmitParam.build(statement);
                 // 加载类
@@ -276,7 +271,9 @@ public class Submitter {
                 // 获取main方法
                 Method mainMethod = clazz.getMethod("main", String[].class);
                 // 执行main方法
-                String[] arggs = ExecuteJarOperation.extractArgs(submitParam.getArgs().trim()).toArray(new String[0]);
+                String[] arggs = ExecuteJarOperation.extractArgs(
+                                submitParam.getArgs().trim())
+                        .toArray(new String[0]);
                 log.error(Arrays.toString(arggs));
                 mainMethod.invoke(null, (Object) arggs);
 

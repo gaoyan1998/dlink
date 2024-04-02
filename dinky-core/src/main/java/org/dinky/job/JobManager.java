@@ -70,10 +70,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.DeploymentOptions;
 import org.apache.flink.configuration.PipelineOptions;
-import org.apache.flink.core.execution.JobClient;
-import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointConfigOptions;
-import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobgraph.jsonplan.JsonPlanGenerator;
 import org.apache.flink.streaming.api.environment.ExecutionCheckpointingOptions;
 import org.apache.flink.streaming.api.graph.StreamGraph;
@@ -85,7 +82,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -261,33 +257,35 @@ public class JobManager {
                 Explainer.build(executor, useStatementSet, this).pretreatStatements(SqlUtil.getStatements(statement));
         job = Job.build(runMode, config, executorConfig, executor, statement, useGateway);
         ready();
-//        JobJarStreamGraphBuilder jobJarStreamGraphBuilder = JobJarStreamGraphBuilder.build(this);
-//        StreamGraph streamGraph = jobJarStreamGraphBuilder.getJarStreamGraph(statement, getDinkyClassLoader());
+        //        JobJarStreamGraphBuilder jobJarStreamGraphBuilder = JobJarStreamGraphBuilder.build(this);
+        //        StreamGraph streamGraph = jobJarStreamGraphBuilder.getJarStreamGraph(statement,
+        // getDinkyClassLoader());
         Configuration configuration =
                 executor.getCustomTableEnvironment().getConfig().getConfiguration();
 
         if (Asserts.isNotNullString(config.getSavePointPath())) {
-//            streamGraph.setSavepointRestoreSettings(SavepointRestoreSettings.forPath(
-//                    config.getSavePointPath(),
-//                    configuration.get(SavepointConfigOptions.SAVEPOINT_IGNORE_UNCLAIMED_STATE)));
+            //            streamGraph.setSavepointRestoreSettings(SavepointRestoreSettings.forPath(
+            //                    config.getSavePointPath(),
+            //                    configuration.get(SavepointConfigOptions.SAVEPOINT_IGNORE_UNCLAIMED_STATE)));
         }
         try {
             if (!useGateway) {
-//                JobClient jobClient = executor.getStreamExecutionEnvironment().executeAsync(streamGraph);
-//                if (Asserts.isNotNull(jobClient)) {
-//                    job.setJobId(jobClient.getJobID().toHexString());
-//                    job.setJids(new ArrayList<String>() {
-//
-//                        {
-//                            add(job.getJobId());
-//                        }
-//                    });
-//                    job.setStatus(Job.JobStatus.SUCCESS);
-//                    success();
-//                } else {
-//                    job.setStatus(Job.JobStatus.FAILED);
-//                    failed();
-//                }
+                //                JobClient jobClient =
+                // executor.getStreamExecutionEnvironment().executeAsync(streamGraph);
+                //                if (Asserts.isNotNull(jobClient)) {
+                //                    job.setJobId(jobClient.getJobID().toHexString());
+                //                    job.setJids(new ArrayList<String>() {
+                //
+                //                        {
+                //                            add(job.getJobId());
+                //                        }
+                //                    });
+                //                    job.setStatus(Job.JobStatus.SUCCESS);
+                //                    success();
+                //                } else {
+                //                    job.setStatus(Job.JobStatus.FAILED);
+                //                    failed();
+                //                }
             } else {
                 GatewayResult gatewayResult;
                 config.addGatewayConfig(configuration);
@@ -295,15 +293,15 @@ public class JobManager {
                     config.getGatewayConfig().setSql(statement);
                     gatewayResult = Gateway.build(config.getGatewayConfig()).submitJar(getUdfPathContextHolder());
                 } else {
-//                    streamGraph.setJobName(config.getJobName());
-//                    JobGraph jobGraph = streamGraph.getJobGraph();
+                    //                    streamGraph.setJobName(config.getJobName());
+                    //                    JobGraph jobGraph = streamGraph.getJobGraph();
                     GatewayConfig gatewayConfig = config.getGatewayConfig();
-//                    List<String> uriList = jobJarStreamGraphBuilder.getUris(statement);
-//                    String[] jarPaths = uriList.stream()
-//                            .map(URLUtils::toFile)
-//                            .map(File::getAbsolutePath)
-//                            .toArray(String[]::new);
-//                    gatewayConfig.setJarPaths(jarPaths);
+                    //                    List<String> uriList = jobJarStreamGraphBuilder.getUris(statement);
+                    //                    String[] jarPaths = uriList.stream()
+                    //                            .map(URLUtils::toFile)
+                    //                            .map(File::getAbsolutePath)
+                    //                            .toArray(String[]::new);
+                    //                    gatewayConfig.setJarPaths(jarPaths);
                     gatewayResult = Gateway.build(gatewayConfig).submitJobGraph(null);
                 }
                 job.setResult(InsertResult.success(gatewayResult.getId()));

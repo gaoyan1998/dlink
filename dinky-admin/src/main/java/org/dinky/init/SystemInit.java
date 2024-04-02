@@ -35,7 +35,6 @@ import org.dinky.function.constant.PathConstant;
 import org.dinky.function.pool.UdfCodePool;
 import org.dinky.job.ClearJobHistoryTask;
 import org.dinky.job.FlinkJobTask;
-import org.dinky.job.SystemMetricsTask;
 import org.dinky.resource.BaseResourceManager;
 import org.dinky.scheduler.client.ProjectClient;
 import org.dinky.scheduler.exception.SchedulerException;
@@ -53,7 +52,6 @@ import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.ApplicationArguments;
@@ -149,19 +147,19 @@ public class SystemInit implements ApplicationRunner {
         SystemConfiguration sysConfig = SystemConfiguration.getInstances();
 
         // Init system metrics task
-//        DaemonTask sysMetricsTask = DaemonTask.build(new DaemonTaskConfig(SystemMetricsTask.TYPE));
-//        Configuration<Boolean> metricsSysEnable = sysConfig.getMetricsSysEnable();
-//        Configuration<Integer> sysGatherTiming = sysConfig.getMetricsSysGatherTiming();
-//        Consumer<Configuration<?>> metricsListener = c -> {
-//            c.addChangeEvent(x -> {
-//                schedule.removeSchedule(sysMetricsTask);
-//                PeriodicTrigger trigger = new PeriodicTrigger(sysGatherTiming.getValue());
-//                if (metricsSysEnable.getValue()) schedule.addSchedule(sysMetricsTask, trigger);
-//            });
-//        };
-//        metricsListener.accept(metricsSysEnable);
-//        metricsListener.accept(sysGatherTiming);
-//        metricsSysEnable.runChangeEvent();
+        //        DaemonTask sysMetricsTask = DaemonTask.build(new DaemonTaskConfig(SystemMetricsTask.TYPE));
+        //        Configuration<Boolean> metricsSysEnable = sysConfig.getMetricsSysEnable();
+        //        Configuration<Integer> sysGatherTiming = sysConfig.getMetricsSysGatherTiming();
+        //        Consumer<Configuration<?>> metricsListener = c -> {
+        //            c.addChangeEvent(x -> {
+        //                schedule.removeSchedule(sysMetricsTask);
+        //                PeriodicTrigger trigger = new PeriodicTrigger(sysGatherTiming.getValue());
+        //                if (metricsSysEnable.getValue()) schedule.addSchedule(sysMetricsTask, trigger);
+        //            });
+        //        };
+        //        metricsListener.accept(metricsSysEnable);
+        //        metricsListener.accept(sysGatherTiming);
+        //        metricsSysEnable.runChangeEvent();
 
         // Init clear job history task
         DaemonTask clearJobHistoryTask = DaemonTask.build(new DaemonTaskConfig(ClearJobHistoryTask.TYPE));
