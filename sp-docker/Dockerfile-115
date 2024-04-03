@@ -1,4 +1,4 @@
-FROM flink:1.17.2-scala_2.12-java11 as base
+FROM flink:1.15.2-scala_2.12-java11 as base
 
 COPY ./coscli /usr/local/bin/coscli
 COPY ./.cos.yaml /root/.cos.yaml
@@ -30,18 +30,17 @@ FROM maven:3.9.6-amazoncorretto-11 AS build
 WORKDIR /user/src/app
 ADD ./tmp-code/ .
 ADD ./settings.xml /usr/share/maven/conf/settings.xml
-RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11
+RUN mvn dependency:go-offline -B --fail-never -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.15,jdk11
 ADD . .
 COPY --from=ui-build /user/src/app/dist/ /user/src/app/dinky-web/dist/
-RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,jdk11,fast && \
+RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.15,jdk11,fast && \
     cd build && \
-    tar -xvf dinky-release-1.17-1.0.1.tar.gz && \
-    mv dinky-release-1.17-1.0.1 /dinky
+    tar -xvf dinky-release-1.15-1.0.1.tar.gz && \
+    mv dinky-release-1.15-1.0.1 /dinky
 
 FROM base
 
 COPY --from=build /dinky /dinky
-
 
 RUN set -eux && \
     mkdir ./plugins/s3-fs-hadoop && \
@@ -58,5 +57,4 @@ RUN set -eux && \
     sed -i '2i source /opt/app/pro-password.sh\necho ${MYSQL_READ_URL}' /docker-entrypoint.sh && \
     sed -i '$a source /opt/app/pro-password.sh\necho ${MYSQL_READ_URL}' /etc/profile && \
     curl -o /opt/flink/lib/mysql.jar "http://10.2.4.16:8081/repository/maven-public/com/mysql/mysql-connector-j/8.0.32/mysql-connector-j-8.0.32.jar"
-
 
