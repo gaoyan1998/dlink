@@ -107,10 +107,7 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
         Optional<ContainerStatus> flinContainer = pod.getStatus().getContainerStatuses().stream()
                 .filter(s -> s.getName().equals(Constants.MAIN_CONTAINER_NAME))
                 .findFirst();
-        //        ContainerStatus containerStatus =
-        //                flinContainer.orElseThrow(() -> new GatewayException("Deploy k8s failed, can't find flink
-        // container"));
-        if (flinContainer.isEmpty()) {
+        if (!flinContainer.isPresent()) {
             return false;
         }
         ContainerStatus containerStatus = flinContainer.get();

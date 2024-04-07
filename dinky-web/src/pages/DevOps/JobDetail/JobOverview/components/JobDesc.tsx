@@ -88,7 +88,8 @@ const JobDesc = (props: JobProps) => {
 
           <Descriptions.Item label={l('devops.jobinfo.config.RestartStrategy')}>
             <Tag color='blue' title={'Restart Strategy'}>
-              {jobDetail?.jobDataDto?.config['execution-config']['restart-strategy']}
+              {jobDetail?.jobDataDto?.config?.executionConfig?.['restart-strategy'] ??
+                jobDetail?.jobDataDto?.config?.['execution-config']?.['restart-strategy']}
             </Tag>
           </Descriptions.Item>
 

@@ -136,7 +136,6 @@ public class K8sClientHelper {
     /**
      * initPodTemplate
      * Preprocess the pod template
-     *
      * @param sqlStatement
      * @return
      */
@@ -162,7 +161,8 @@ public class K8sClientHelper {
 
     /**
      * dumpPod2Str
-     */
+     *
+     * */
     public String dumpPod2Str(Pod pod) {
         // use snakyaml to serialize the pod
         Representer representer = new IgnoreNullRepresenter();
@@ -174,11 +174,9 @@ public class K8sClientHelper {
         Yaml yaml = new Yaml(representer, options);
         return yaml.dump(pod);
     }
-
     /**
      * close
      * delete the temporary directory and close the client
-     *
      * @return
      */
     public boolean close() {
