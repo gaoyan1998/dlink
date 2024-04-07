@@ -26,6 +26,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClientFactory;
+import org.apache.flink.kubernetes.kubeclient.decorators.ExternalServiceDecorator;
 import org.apache.http.util.TextUtils;
 
 import java.io.ByteArrayInputStream;
@@ -66,6 +67,11 @@ public class K8sClientHelper {
     public K8sClientHelper(Configuration configuration, String kubeConfig) {
         this.configuration = configuration;
         initKubeClient(kubeConfig);
+    }
+
+    public boolean getClusterIsPresent(String clusterId) {
+        return client.getService(ExternalServiceDecorator.getExternalServiceName(clusterId))
+                .isPresent();
     }
 
     /**
@@ -118,6 +124,7 @@ public class K8sClientHelper {
     /**
      * initPodTemplate
      * Preprocess the pod template
+     *
      * @param sqlStatement
      * @return
      */
@@ -143,8 +150,7 @@ public class K8sClientHelper {
 
     /**
      * dumpPod2Str
-     *
-     * */
+     */
     public String dumpPod2Str(Pod pod) {
         // use snakyaml to serialize the pod
         Representer representer = new IgnoreNullRepresenter();
@@ -156,9 +162,11 @@ public class K8sClientHelper {
         Yaml yaml = new Yaml(representer, options);
         return yaml.dump(pod);
     }
+
     /**
      * close
      * delete the temporary directory and close the client
+     *
      * @return
      */
     public boolean close() {

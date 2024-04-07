@@ -77,6 +77,7 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
     public GatewayResult submitJar(FlinkUdfPathContextHolder udfPathContextHolder) {
         init();
         try (KubernetesClient kubernetesClient = getK8sClientHelper().getKubernetesClient()) {
+            killCluster();
             logger.info("Start submit k8s application.");
 
             ClusterClientProvider<String> clusterClient =
@@ -106,9 +107,10 @@ public class KubernetesApplicationGateway extends KubernetesGateway {
         Optional<ContainerStatus> flinContainer = pod.getStatus().getContainerStatuses().stream()
                 .filter(s -> s.getName().equals(Constants.MAIN_CONTAINER_NAME))
                 .findFirst();
-//        ContainerStatus containerStatus =
-//                flinContainer.orElseThrow(() -> new GatewayException("Deploy k8s failed, can't find flink container"));
-        if (flinContainer.isEmpty()){
+        //        ContainerStatus containerStatus =
+        //                flinContainer.orElseThrow(() -> new GatewayException("Deploy k8s failed, can't find flink
+        // container"));
+        if (flinContainer.isEmpty()) {
             return false;
         }
         ContainerStatus containerStatus = flinContainer.get();
