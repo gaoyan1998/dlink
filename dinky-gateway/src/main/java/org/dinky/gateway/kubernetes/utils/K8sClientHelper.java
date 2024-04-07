@@ -19,8 +19,6 @@
 
 package org.dinky.gateway.kubernetes.utils;
 
-import io.fabric8.kubernetes.api.model.*;
-import org.apache.flink.kubernetes.kubeclient.resources.KubernetesService;
 import org.dinky.gateway.kubernetes.decorate.DinkySqlConfigMapDecorate;
 import org.dinky.utils.TextUtil;
 
@@ -43,6 +41,11 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.OwnerReference;
+import io.fabric8.kubernetes.api.model.OwnerReferenceBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -70,7 +73,8 @@ public class K8sClientHelper {
 
     public Optional<Service> getJobService(String clusterId) {
         String serviceName = ExternalServiceDecorator.getExternalServiceName(clusterId);
-        final Service service = kubernetesClient.services().withName(serviceName).get();
+        final Service service =
+                kubernetesClient.services().withName(serviceName).get();
         if (service == null) {
             log.debug("Service {} does not exist", serviceName);
             return Optional.empty();
