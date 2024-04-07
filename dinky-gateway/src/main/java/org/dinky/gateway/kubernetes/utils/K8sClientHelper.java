@@ -73,8 +73,11 @@ public class K8sClientHelper {
 
     public Optional<Service> getJobService(String clusterId) {
         String serviceName = ExternalServiceDecorator.getExternalServiceName(clusterId);
-        final Service service =
-                kubernetesClient.services().withName(serviceName).fromServer().get();
+        final Service service = kubernetesClient
+                .services()
+                .inNamespace(configuration.getString(KubernetesConfigOptions.NAMESPACE))
+                .withName(serviceName)
+                .get();
         if (service == null) {
             log.debug("Service {} does not exist", serviceName);
             return Optional.empty();
