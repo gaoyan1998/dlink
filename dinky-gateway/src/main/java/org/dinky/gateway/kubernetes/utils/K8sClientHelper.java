@@ -71,18 +71,19 @@ public class K8sClientHelper {
         initKubeClient(kubeConfig);
     }
 
-    public Optional<Service> getJobService(String clusterId) {
+    public Optional<Deployment> getJobService(String clusterId) {
         String serviceName = ExternalServiceDecorator.getExternalServiceName(clusterId);
-        final Service service = kubernetesClient
-                .services()
+        Deployment deployment = kubernetesClient
+                .apps()
+                .deployments()
                 .inNamespace(configuration.getString(KubernetesConfigOptions.NAMESPACE))
-                .withName(serviceName)
+                .withName(configuration.getString(KubernetesConfigOptions.CLUSTER_ID))
                 .get();
-        if (service == null) {
+        if (deployment == null) {
             log.debug("Service {} does not exist", serviceName);
             return Optional.empty();
         }
-        return Optional.of(service);
+        return Optional.of(deployment);
     }
 
     public boolean getClusterIsPresent(String clusterId) {
