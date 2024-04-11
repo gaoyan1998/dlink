@@ -120,7 +120,7 @@ const JobDesc = (props: JobProps) => {
           </Descriptions.Item>
 
           <Descriptions.Item label={l('devops.jobinfo.config.JobParallelism')}>
-            {jobDetail?.jobDataDto?.config['execution-config']['job-parallelism']}
+            {jobDetail?.jobDataDto?.config?.['execution-config']?.jobParallelism}
           </Descriptions.Item>
 
           <Descriptions.Item label={l('global.table.useTime')}>

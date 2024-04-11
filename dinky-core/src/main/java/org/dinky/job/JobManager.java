@@ -19,6 +19,8 @@
 
 package org.dinky.job;
 
+import org.apache.flink.api.dag.Pipeline;
+import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.dinky.api.FlinkAPI;
 import org.dinky.assertion.Asserts;
 import org.dinky.classloader.DinkyClassLoader;
@@ -60,11 +62,7 @@ import org.dinky.parser.SqlType;
 import org.dinky.trans.Operations;
 import org.dinky.trans.parse.AddFileSqlParseStrategy;
 import org.dinky.trans.parse.AddJarSqlParseStrategy;
-import org.dinky.utils.DinkyClassLoaderUtil;
-import org.dinky.utils.JsonUtils;
-import org.dinky.utils.LogUtil;
-import org.dinky.utils.SqlUtil;
-import org.dinky.utils.URLUtils;
+import org.dinky.utils.*;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -242,9 +240,10 @@ public class JobManager {
     }
 
     public ObjectNode getJarStreamGraphJson(String statement) {
-        StreamGraph streamGraph =
-                JobJarStreamGraphBuilder.build(this).getJarStreamGraph(statement, getDinkyClassLoader());
-        return JsonUtils.parseObject(JsonPlanGenerator.generatePlan(streamGraph.getJobGraph()));
+        Pipeline pipeline = JobJarStreamGraphBuilder.build(this).getJarStreamGraph(statement, getDinkyClassLoader());
+        Configuration configuration = Configuration.fromMap(getExecutorConfig().getConfig());
+        JobGraph jobGraph = FlinkStreamEnvironmentUtil.getJobGraph(pipeline, configuration);
+        return JsonUtils.parseObject(JsonPlanGenerator.generatePlan(jobGraph));
     }
 
     @ProcessStep(type = ProcessStepType.SUBMIT_EXECUTE)
