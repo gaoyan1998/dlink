@@ -17,19 +17,25 @@
  *
  */
 
-package org.dinky.gateway.kubernetes;
+package org.dinky.data.enums;
 
 /**
- * FlinkRestAPIConstant
- *
- * @since 2022/3/2 20:04
+ * @author luoshangjie
+ * @projectName dinky
+ * @description:
+ * @date 2024/4/13 12:51
  */
-public final class FlinkRestResultConstant {
-
-    public static final String ERRORS = "errors";
-    public static final String ROOT_EXCEPTION = "root-exception";
-    public static final String JOB_DURATION = "duration";
-    public static final String JOB_CREATE_TIME = "start-time";
-    public static final String JOB_FINISH_TIME = "end-time";
-    public static final String JOB_STATE = "state";
+public enum HaModeEnum {
+    /**
+     * no highly available
+     */
+    NONE,
+    /**
+     * ZOOKEEPER highly available
+     */
+    ZOOKEEPER,
+    /**
+     * KUBERNETES highly available
+     */
+    KUBERNETES
 }

@@ -315,6 +315,7 @@ const HeaderContainer = (props: connect) => {
     });
   };
 
+  console.log(currentData?.status)
   const routes: ButtonRoute[] = [
     // 保存按钮 icon
     {
