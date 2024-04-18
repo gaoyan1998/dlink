@@ -26,7 +26,6 @@ import org.dinky.daemon.task.DaemonTask;
 import org.dinky.daemon.task.DaemonTaskConfig;
 import org.dinky.data.model.ext.JobInfoDetail;
 import org.dinky.job.handler.JobAlertHandler;
-import org.dinky.job.handler.JobMetricsHandler;
 import org.dinky.job.handler.JobRefreshHandler;
 import org.dinky.service.JobInstanceService;
 import org.dinky.service.MonitorService;
