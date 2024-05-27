@@ -68,4 +68,4 @@ jobs:
             APP_VERSION=xxx
           # 生成两个 docker tag: ${APP_VERSION} 和 latest
           tags: |
-            ${{ env.DOCKERHUB_REPO }}:${{ env.dinky_version }}
+            dinky:${{ inputs.dinky_version }}
