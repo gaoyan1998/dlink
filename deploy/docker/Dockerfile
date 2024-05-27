@@ -24,7 +24,7 @@ WORKDIR /build/dinky
 ADD . .
 COPY --from=ui-build /build/dinky/dist/ /build/dinky/dinky-web/dist/
 
-RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17 && \
+RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,fast && \
     cd build && \
     tar -C /dinky -xvf dinky-release-*.tar.gz && \
     mv /dinky/dinky-release-* /dinky/dinky
