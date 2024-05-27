@@ -52,21 +52,20 @@ jobs:
           # GitHub Repo => Settings => Secrets 增加 docker hub 登录密钥信息
           # DOCKERHUB_USERNAME 是 docker hub 账号名.
           # DOCKERHUB_TOKEN: docker hub => Account Setting => Security 创建.
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_IO_USER  }}
+          password: ${{ secrets.DOCKER_IO_PASS  }}
       # 构建 Docker 并推送到 Docker hub
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v5
         with:
+          file: ./deploy/docker/Dockerfile
           # 是否 docker push
           push: true
           # docker build arg, 注入 APP_NAME/APP_VERSION
           build-args: |
             APP_NAME=xxxx
             APP_VERSION=xxx
-            -t ./deploy/docker/Dockerfile
           # 生成两个 docker tag: ${APP_VERSION} 和 latest
           tags: |
-            #${{ env.DOCKERHUB_REPO }}:latest
             ${{ env.DOCKERHUB_REPO }}:${{ env.dinky_version }}
