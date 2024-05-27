@@ -20,7 +20,7 @@ name: Docker Build
 on:
   workflow_dispatch:
     inputs:
-      version:
+      dinky_version:
         description: 'dinky version'
         required: true
 
