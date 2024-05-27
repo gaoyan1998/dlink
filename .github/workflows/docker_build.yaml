@@ -17,8 +17,6 @@
 
 name: Docker Build
 
-
-
 on:
   workflow_dispatch:
     inputs:
@@ -30,21 +28,13 @@ jobs:
   build_releases:
     name: build releases
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-  dinky_mysql_image:
-    name: dinky mysql image
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        url: [ registry.cn-hangzhou.aliyuncs.com ,docker.io ]
+        url: [ registry.cn-hangzhou.aliyuncs.com  ]
         include:
           - url: registry.cn-hangzhou.aliyuncs.com
             namespace: dinky
-          - url: docker.io
-            namespace: dinkydocker
     steps:
       # git checkout 代码
       - name: Checkout
