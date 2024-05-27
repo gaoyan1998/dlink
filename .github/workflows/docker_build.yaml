@@ -65,6 +65,7 @@ jobs:
           build-args: |
             APP_NAME=xxxx
             APP_VERSION=xxx
+            -t ./deploy/docker/Dockerfile
           # 生成两个 docker tag: ${APP_VERSION} 和 latest
           tags: |
             #${{ env.DOCKERHUB_REPO }}:latest
