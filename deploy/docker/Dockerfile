@@ -15,7 +15,7 @@ RUN npm install --legacy-peer-deps
 ADD ./dinky-web .
 RUN npm run build
 
-FROM maven:3.9.6-amazoncorretto-11 AS build
+FROM maven:3.9-eclipse-temurin-8-alpine AS build
 WORKDIR /build/
 ARG FLINK_VERSION
 ARG DINKY_VERSION
@@ -46,7 +46,7 @@ COPY --from=flink-base  /opt/flink/lib/*.jar  /opt/dinky/extends/flink${FLINK_VE
 RUN rm -f  /opt/dinky/extends/flink${FLINK_VERSION}/flink-table-planner-loader*.jar && \
     curl -o /opt/dinky/extends/mysql-connector-j-8.0.33.jar "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar"
 
-COPY --from=flink-base  /opt/flink/opt/flink-table-planner*.jar /dinky/extends/flink${FLINK_VERSION}/
+COPY --from=flink-base  /opt/flink/opt/flink-table-planner*.jar /opt/dinky/extends/flink${FLINK_VERSION}/
 
 RUN mkdir /opt/dinky/customJar && chmod -R 777 /opt/dinky/
 
