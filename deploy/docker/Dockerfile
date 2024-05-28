@@ -31,7 +31,7 @@ RUN mkdir release &&  \
     mv release/dinky-release-* release/dinky
 
 
-FROM openjdk:8-jdk-slim-bullseye
+FROM eclipse-temurin:8-jre-jammy
 
 ARG FLINK_VERSION
 ENV FLINK_VERSION=${FLINK_VERSION}
