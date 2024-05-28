@@ -1,5 +1,10 @@
+ARG FLINK_VERSION
+ARG DINKY_VERSION
+
+FROM flink:${FLINK_VERSION}-scala_2.12-java8 as flink-base
+
 FROM  node:18.15.0-alpine3.17 AS ui-build
-WORKDIR /build/dinky
+WORKDIR /build/
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 ENV UMI_ENV=production
@@ -10,38 +15,40 @@ RUN npm install --legacy-peer-deps
 ADD ./dinky-web .
 RUN npm run build
 
-
-
-
-FROM flink:1.17.2-scala_2.12-java11 as base
-
-ENV TZ=Asia/Shanghai
-
-
 FROM maven:3.9.6-amazoncorretto-11 AS build
-WORKDIR /build/dinky
+WORKDIR /build/
+ARG FLINK_VERSION
+ENV FLINK_VERSION=${FLINK_VERSION}
+ENV DINKY_VERSION=${DINKY_VERSION}
 
 ADD . .
-COPY --from=ui-build /build/dinky/dist/ /build/dinky/dinky-web/dist/
+COPY --from=ui-build /build/dist/ /build/dinky-web/dist/
 
-RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-1.17,fast
-RUN cd build && ls -al && mkdir /dinky &&  \
-    tar -C /dinky -xvf dinky-release-1.17-1.1.0-SNAPSHOT.tar.gz && ls -al /dinky && \
-    mv /dinky/dinky-release-* /dinky/dinky
+RUN mvn package -Dmaven.test.skip=true -P prod,scala-2.12,flink-single-version,flink-${FLINK_VERSION},fast
+RUN mkdir release &&  \
+    tar -C release -xvf build/dinky-release-${FLINK_VERSION}-${DINKY_VERSION}.tar.gz && \
+    mv release/dinky-release-* release/dinky
 
 
-FROM base
+FROM openjdk:8-jdk-alpine
 
-ARG DINKY_VERSION
-ENV DINKY_VERSION=${DINKY_VERSION}
+ARG FLINK_VERSION
+ENV FLINK_VERSION=${FLINK_VERSION}
+ENV DINKY_HOME=/opt/dinky/
+
 WORKDIR /opt/dinky/
 
-COPY --from=build /dinky/dinky /opt/
+COPY --from=build /build/release/dinky /opt/
+COPY --from=flink-base /opt/flink/lib/ /opt/dinky/extends/
+COPY --from=flink-base  /opt/flink/lib/*.jar  /dinky/extends/flink${FLINK_VERSION}/
+RUN rm -f  /dinky/extends/flink${FLINK_VERSION}/flink-table-planner-loader*.jar && \
+    curl -o /opt/dinky/lib/mysql-connector-j-8.0.33.jar "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar"
+
+COPY --from=flink-base  /opt/flink/opt/flink-table-planner*.jar /dinky/extends/flink${FLINK_VERSION}/
 
 USER root
-RUN mkdir -p /opt/dinky/run && mkdir -p /opt/dinky/logs &&  touch /opt/dinky/logs/dinky.log
-RUN chmod -R 777 /opt/dinky/
+RUN mkdir /opt/dinky/customJar && chmod -R 777 /opt/dinky/
 
 EXPOSE 8888
 
-CMD  ./auto.sh restart && tail -f /opt/dinky/logs/dinky.log
+CMD  ./auto.sh startOnPending
