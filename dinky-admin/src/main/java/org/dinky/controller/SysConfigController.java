@@ -23,6 +23,7 @@ import org.dinky.data.annotations.Log;
 import org.dinky.data.enums.BusinessType;
 import org.dinky.data.enums.Status;
 import org.dinky.data.model.Configuration;
+import org.dinky.data.model.SystemConfiguration;
 import org.dinky.data.result.Result;
 import org.dinky.service.SysConfigService;
 
@@ -110,4 +111,13 @@ public class SysConfigController {
                 .collect(Collectors.toList());
         return Result.succeed(configList);
     }
+
+    @GetMapping("/getIsFirstVisit")
+    @ApiOperation("get is first visit")
+    @SaIgnore
+    public Result<Boolean> isSysFirst() {
+        Configuration<Boolean> isFirstSystemIn = SystemConfiguration.getInstances().getIsFirstSystemIn();
+        return Result.succeed(isFirstSystemIn.getValue());
+    }
+
 }
