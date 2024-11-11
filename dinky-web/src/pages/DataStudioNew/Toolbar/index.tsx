@@ -81,7 +81,7 @@ export default React.memo((props: ToolbarProp) => {
             className += ' toolbar-icon-container-open';
           }
           return (
-            <div style={{padding: "5px 5px 0"}}>
+            <div style={{ padding: '5px 5px 0' }}>
               <Tooltip title={item.title()} placement={'right'} arrow={false} key={item.key}>
                 <Row
                   id={item.key}
@@ -94,17 +94,17 @@ export default React.memo((props: ToolbarProp) => {
                     onClick(item);
                   }}
                 >
-                <span
-                  style={{
-                    width: '100%',
-                    textAlign: 'center'
-                  }}
-                >
-                  {React.cloneElement(item.icon, {
-                    className: 'toolbar-icon',
-                    style: { fontSize: height === 60 ? 23 : 18 }
-                  })}
-                </span>
+                  <span
+                    style={{
+                      width: '100%',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {React.cloneElement(item.icon, {
+                      className: 'toolbar-icon',
+                      style: { fontSize: height === 60 ? 23 : 18 }
+                    })}
+                  </span>
                   {showDesc && (
                     <Typography.Paragraph className={'toolbar-desc'}>
                       {item.title()}
