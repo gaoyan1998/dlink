@@ -69,9 +69,8 @@ public class SystemConfiguration {
             .map(f -> (Configuration<?>) ReflectUtil.getFieldValue(systemConfiguration, f))
             .collect(Collectors.toList());
 
-    private final Configuration<Boolean> isFirstSystemIn = key(Status.SYS_GLOBAL_IS_FIRST)
-            .booleanType()
-            .defaultValue(false);
+    private final Configuration<Boolean> isFirstSystemIn =
+            key(Status.SYS_GLOBAL_IS_FIRST).booleanType().defaultValue(false);
 
     private final Configuration<Boolean> useRestAPI = key(Status.SYS_FLINK_SETTINGS_USERESTAPI)
             .booleanType()

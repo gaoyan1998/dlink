@@ -116,8 +116,8 @@ public class SysConfigController {
     @ApiOperation("get is first visit")
     @SaIgnore
     public Result<Boolean> isSysFirst() {
-        Configuration<Boolean> isFirstSystemIn = SystemConfiguration.getInstances().getIsFirstSystemIn();
+        Configuration<Boolean> isFirstSystemIn =
+                SystemConfiguration.getInstances().getIsFirstSystemIn();
         return Result.succeed(isFirstSystemIn.getValue());
     }
-
 }
