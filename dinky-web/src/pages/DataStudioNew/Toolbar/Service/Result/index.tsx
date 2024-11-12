@@ -239,7 +239,7 @@ export default (props: { taskId: number; action: any; dialect: string }) => {
   const renderFlinkSQLContent = () => {
     return (
       <>
-        {!isSql(dialect) && !data.destroyed ? (
+        {!isSql(dialect) ? (
           <Button loading={loading} type='primary' onClick={showDetail} icon={<SyncOutlined />}>
             {l('pages.datastudio.label.result.query.latest.data')}
           </Button>
