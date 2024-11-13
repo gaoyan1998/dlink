@@ -17,19 +17,21 @@
  *
  */
 
-package org.dinky.constant;
+import { Space } from 'antd';
+import React from 'react';
 
-/**
- * FlinkConstant
- *
- * @since 2021/5/25 14:39
- */
-public interface FlinkConstant {
-    /** 本地模式host */
-    String LOCAL_HOST = "localhost";
-    /** changlog op */
-    String OP = "op";
-
-    /** flink 默认端口 **/
-    Integer FLINK_REST_DEFAULT_PORT = 8081;
+interface ContextMenuSpaceProps {
+  onContextMenu: (e: React.MouseEvent<HTMLElement>) => void;
+  children: React.ReactNode | JSX.Element | string;
 }
+
+export const ContextMenuSpace = (props: ContextMenuSpaceProps) => {
+  const { onContextMenu, children } = props;
+  return (
+    <>
+      <Space onContextMenu={onContextMenu} size={0}>
+        {children}
+      </Space>
+    </>
+  );
+};

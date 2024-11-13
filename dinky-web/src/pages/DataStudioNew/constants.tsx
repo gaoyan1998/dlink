@@ -17,19 +17,29 @@
  *
  */
 
-package org.dinky.constant;
+import { l } from '@/utils/intl';
+import { CloseCircleTwoTone, IssuesCloseOutlined } from '@ant-design/icons';
+import { Space } from 'antd';
+import { DefaultOptionType } from 'antd/es/select';
+import { MenuItemType } from 'rc-menu/lib/interface';
 
-/**
- * FlinkConstant
- *
- * @since 2021/5/25 14:39
- */
-public interface FlinkConstant {
-    /** 本地模式host */
-    String LOCAL_HOST = "localhost";
-    /** changlog op */
-    String OP = "op";
-
-    /** flink 默认端口 **/
-    Integer FLINK_REST_DEFAULT_PORT = 8081;
-}
+export const TAG_RIGHT_CONTEXT_MENU: MenuItemType[] = [
+  {
+    key: 'closeAll',
+    label: (
+      <Space>
+        <CloseCircleTwoTone />
+        {l('right.menu.closeAll')}
+      </Space>
+    )
+  },
+  {
+    key: 'closeOther',
+    label: (
+      <Space>
+        <IssuesCloseOutlined className={'blue-icon'} />
+        {l('right.menu.closeOther')}
+      </Space>
+    )
+  }
+];

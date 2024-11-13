@@ -158,7 +158,6 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
       updateCenterTab({ ...props.tabData, params: newParams });
 
       setOriginStatementValue(statement);
-
       if (params?.statement && params?.statement !== taskDetail.statement) {
         setDiff([{ key: 'statement', server: taskDetail.statement, cache: params.statement }]);
         setOpenDiffModal(true);
@@ -198,13 +197,7 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
     editorInstance.current = editor;
     // @ts-ignore
     editor['id'] = currentState.taskId;
-    editor.onDidChangeCursorPosition((e) => {
-      // props.footContainerCacher.cache.codePosition = [e.position.lineNumber, e.position.column];
-      // dispatch({
-      //   type: STUDIO_MODEL.saveFooterValue,
-      //   payload: { ...props.footContainerCacher.cache }
-      // });
-    });
+    editor.onDidChangeCursorPosition((e) => {});
     registerEditorKeyBindingAndAction(editor);
   };
 
@@ -753,10 +746,10 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
                 <Panel>
                   <CodeEdit
                     monacoRef={editorInstance}
-                    code={currentState.statement}
+                    code={originStatementValue}
                     language={matchLanguage(currentState.dialect)}
                     editorDidMount={editorDidMount}
-                    onChange={debounce(onEditorChange, 500)}
+                    onChange={debounce(onEditorChange, 50)}
                     enableSuggestions={true}
                     options={{
                       readOnlyMessage: {
