@@ -19,8 +19,9 @@
 
 package org.dinky.data.vo;
 
-import lombok.Data;
 import org.dinky.ws.GlobalWebSocket;
+
+import lombok.Data;
 
 @Data
 public class SseDataVo {

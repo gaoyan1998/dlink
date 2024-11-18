@@ -25,7 +25,7 @@ import { TOKEN_KEY } from '@/services/constants';
 export type SseData = {
   topic: string;
   data: Record<string, any>;
-  type:string
+  type: string;
 };
 
 export enum Topic {
@@ -88,7 +88,7 @@ export default () => {
       reconnect();
     } else if (ws.current.readyState === WebSocket.OPEN) {
       const token = JSON.parse(localStorage.getItem(TOKEN_KEY) ?? '{}')?.tokenValue;
-      ws.current.send(JSON.stringify({ token, topics, type:'SUBSCRIBE' }));
+      ws.current.send(JSON.stringify({ token, topics, type: 'SUBSCRIBE' }));
     } else {
       //TODO do someting
     }
@@ -116,13 +116,13 @@ export default () => {
     setInterval(() => {
       if (!ws.current || ws.current.readyState != WebSocket.OPEN) {
         reconnect();
-      }else {
+      } else {
         const currentTime = new Date().getTime();
         if (currentTime - lastPongTimeRef.current > 15000) {
           reconnect();
-        }else if (currentTime - lastPongTimeRef.current > 5000) {
+        } else if (currentTime - lastPongTimeRef.current > 5000) {
           const token = JSON.parse(localStorage.getItem(TOKEN_KEY) ?? '{}')?.tokenValue;
-          ws.current.send(JSON.stringify({ token, type:'PING' }));
+          ws.current.send(JSON.stringify({ token, type: 'PING' }));
         }
       }
     }, 2000);

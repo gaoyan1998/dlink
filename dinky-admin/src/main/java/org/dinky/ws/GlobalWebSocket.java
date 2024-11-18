@@ -108,8 +108,7 @@ public class GlobalWebSocket {
             }
 
             if (requestDTO.getType() == RequestDTO.EventType.PING) {
-                SseDataVo data = new SseDataVo(
-                        session.getId(), RequestDTO.EventType.PONG);
+                SseDataVo data = new SseDataVo(session.getId(), RequestDTO.EventType.PONG);
                 session.getBasicRemote().sendText(JsonUtils.toJsonString(data));
                 return;
             }
