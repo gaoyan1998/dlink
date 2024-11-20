@@ -11,21 +11,23 @@
   --text-color: #424242;
   --panel-extra-btn-color: #000000;
   --scroll-bg-color: #daecff;
+  --close-btn-img: url('./imgs/close-light.svg');
 }
 
 .dark-theme {
   // 暗色主题颜色全局变量
-  --primary-color: #24292e;
-  --second-color: #263238;
-  --main-background-color: #24292e;
-  --footer-bg-color: rgba(255, 255, 255, 0.18);
+  --primary-color: #2b2d30;
+  --second-color: #3c3f41;
+  --main-background-color: #2b2d30;
+  --footer-bg-color: #2b2d30;
   --btn-color: #ced0d6;
-  --btn-active-color: #ced0d6;
-  --btn-background-color: #5e423f;
-  --border-color: #1b1f23;
+  --btn-active-color: #fafafa;
+  --btn-background-color: #43454a;
+  --border-color: #1e1f22;
   --text-color: #fafafa;
   --panel-extra-btn-color: #fafafa;
-  --scroll-bg-color: #c46c5d;
+  --scroll-bg-color: #4d4e51;
+  --close-btn-img: url('./imgs/close-dark.svg');
 }
 
 .page-container {
@@ -198,8 +200,9 @@ body > .dragging-layer > div:last-child {
 
 .dock-tab-active,
 .dock-tab-active:hover {
-  color: #108ee9;
+  color: var(--text-color);
   cursor: default;
+  font-weight: 600;
   transform: translateZ(0);
 }
 
@@ -279,20 +282,29 @@ body > .dragging-layer > div:last-child {
 .dock-tab-close-btn {
   position: absolute;
   cursor: pointer;
-  font-family: 'Fredoka One', sans-serif;
   color: var(--text-color);
-  right: -5px;
+  right: -7px;
   font-size: 12px;
-  width: 16px;
+
   text-align: center;
   top: 12px;
   outline: none;
   transition: all 0.25s ease-in-out;
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-image: var(--close-btn-img);
+  background-position: center;
 }
-
 .dock-tab-close-btn:before {
-  content: 'X';
-  font-family: emoji;
+  content: '';
+}
+.dock-tab-close-btn:hover {
+  background-size: 14px;
+  border: 1px solid #0b7ec4;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
 }
 
 .dock-tab-close-btn:hover,
