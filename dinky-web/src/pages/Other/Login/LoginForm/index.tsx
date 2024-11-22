@@ -17,39 +17,41 @@
  *
  */
 
-import { getData } from '@/services/api';
-import { API_CONSTANTS } from '@/services/endpoints';
-import { l } from '@/utils/intl';
-import { GithubOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
-import { DefaultFooter, ProForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
-import { SubmitterProps } from '@ant-design/pro-form/es/components';
-import { Col, Flex, Row } from 'antd';
-import React, { useEffect, useState } from 'react';
+import {API_CONSTANTS} from '@/services/endpoints';
+import {l} from '@/utils/intl';
+import {GithubOutlined, LockOutlined, UserOutlined} from '@ant-design/icons';
+import {DefaultFooter, ProForm, ProFormCheckbox, ProFormText} from '@ant-design/pro-components';
+import {SubmitterProps} from '@ant-design/pro-form/es/components';
+import {Col, Flex, Row} from 'antd';
+import React, {useState} from 'react';
 import style from '../../../../global.less';
 import Lottie from 'react-lottie';
 import DataPlatform from '../../../../../public/login_animation.json';
+import {useRequest} from "@@/exports";
+import {history} from "@umijs/max";
+import {GLOBAL_SETTING_KEYS} from '@/types/SettingCenter/data.d';
 
 type LoginFormProps = {
   onSubmit: (values: any) => Promise<void>;
 };
 
 const LoginForm: React.FC<LoginFormProps> = (props) => {
-  const { onSubmit } = props;
+  const {onSubmit} = props;
 
   const [form] = ProForm.useForm();
 
   const [submitting, setSubmitting] = useState(false);
   const [ldapEnabled, setLdapEnabled] = useState(false);
 
-  useEffect(() => {
-    getData(API_CONSTANTS.GET_LDAP_ENABLE).then(
-      (res) => {
-        setLdapEnabled(res.data);
-        form.setFieldValue('ldapLogin', res.data);
-      },
-      (err) => console.error(err)
-    );
-  }, []);
+  useRequest(API_CONSTANTS.GET_NEEDED_CFG, {
+    onSuccess: (res) => {
+      if (res[GLOBAL_SETTING_KEYS.SYS_GLOBAL_ISFIRST]) {
+        history.push('/welcom');
+      }
+      setLdapEnabled(res[GLOBAL_SETTING_KEYS.SYS_LDAP_SETTINGS_ENABLE]);
+      form.setFieldValue('ldapLogin', res[GLOBAL_SETTING_KEYS.SYS_LDAP_SETTINGS_ENABLE]);
+    }
+  });
 
   const handleClickLogin = async () => {
     setSubmitting(true);
@@ -138,7 +140,7 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
           }}
         >
           <Col
-            style={{ padding: '5%', backgroundColor: '#fff' }}
+            style={{padding: '5%', backgroundColor: '#fff'}}
             xs={24}
             sm={24}
             md={10}
@@ -147,25 +149,25 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
             xxl={8}
           >
             <Row
-              style={{ color: '#00b0ff', marginBottom: 60, justifyContent: 'center' }}
+              style={{color: '#00b0ff', marginBottom: 60, justifyContent: 'center'}}
               align={'middle'}
             >
-              <img src={'./dinky.svg'} width={150} alt={''} />
-              <h1 style={{ margin: '0' }}>{l('layouts.userLayout.title')}</h1>
+              <img src={'./dinky.svg'} width={150} alt={''}/>
+              <h1 style={{margin: '0'}}>{l('layouts.userLayout.title')}</h1>
             </Row>
 
             <ProForm
               className={style.loginform}
               form={form}
               onFinish={handleClickLogin}
-              initialValues={{ autoLogin: true }}
-              submitter={{ ...proFormSubmitter }}
+              initialValues={{autoLogin: true}}
+              submitter={{...proFormSubmitter}}
             >
               {renderLoginForm()}
             </ProForm>
             <DefaultFooter
               copyright={`${new Date().getFullYear()} ` + l('app.copyright.produced')}
-              style={{ backgroundColor: '#fff' }}
+              style={{backgroundColor: '#fff'}}
               links={[
                 {
                   key: 'Dinky',
@@ -175,7 +177,7 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
                 },
                 {
                   key: 'github',
-                  title: <GithubOutlined />,
+                  title: <GithubOutlined/>,
                   href: 'https://github.com/DataLinkDC/dinky',
                   blankTarget: true
                 }
@@ -195,7 +197,7 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
               height: '100%'
             }}
           >
-            <Flex align={'center'} style={{ width: '100%', height: '100%' }}>
+            <Flex align={'center'} style={{width: '100%', height: '100%'}}>
               <Lottie
                 options={{
                   loop: true,
@@ -218,7 +220,7 @@ const LoginForm: React.FC<LoginFormProps> = (props) => {
         src={'./icons/footer-bg.svg'}
         width={'100%'}
         alt={''}
-        style={{ position: 'absolute', bottom: 0 }}
+        style={{position: 'absolute', bottom: 0}}
       />
     </>
   );
