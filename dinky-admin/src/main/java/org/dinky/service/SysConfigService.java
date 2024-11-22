@@ -71,12 +71,12 @@ public interface SysConfigService extends ISuperService<SysConfig> {
      *
      * @return A map of string keys to lists of {@link Configuration} objects.
      */
-    Result<Map<String,Object>> getNeededCfg();
+    Result<Map<String, Object>> getNeededCfg();
 
     /**
      * Set initial configurations.
      *
      * @param params The parameters for initializing configurations.
      */
-    Result<Void> setInitConfig(Map<String,Object> params);
+    Result<Void> setInitConfig(Map<String, Object> params);
 }

@@ -111,19 +111,17 @@ public class SysConfigController {
         return Result.succeed(configList);
     }
 
-
     @GetMapping("/getNeededCfg")
     @ApiOperation("Get Needed Config")
     @SaIgnore
-    public Result<Map<String,Object>> getNeededCfg() {
+    public Result<Map<String, Object>> getNeededCfg() {
         return sysConfigService.getNeededCfg();
     }
 
     @PostMapping("/setInitConfig")
     @ApiOperation("Get Needed Config")
     @SaIgnore
-    public Result<Void> setInitConfig(@RequestBody Map<String,Object> params) {
+    public Result<Void> setInitConfig(@RequestBody Map<String, Object> params) {
         return sysConfigService.setInitConfig(params);
     }
-
 }

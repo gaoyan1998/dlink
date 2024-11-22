@@ -19,8 +19,6 @@
 
 package org.dinky.service.impl;
 
-import cn.dev33.satoken.secure.SaSecureUtil;
-import lombok.RequiredArgsConstructor;
 import org.dinky.context.EngineContextHolder;
 import org.dinky.data.model.Configuration;
 import org.dinky.data.model.SysConfig;
@@ -30,21 +28,23 @@ import org.dinky.data.result.Result;
 import org.dinky.mapper.SysConfigMapper;
 import org.dinky.mybatis.service.impl.SuperServiceImpl;
 import org.dinky.service.SysConfigService;
+import org.dinky.service.UserService;
+import org.dinky.utils.TextUtil;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.dinky.service.UserService;
-import org.dinky.utils.TextUtil;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 
+import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -131,8 +131,6 @@ public class SysConfigServiceImpl extends SuperServiceImpl<SysConfigMapper, SysC
         }
     }
 
-
-
     @Override
     public Result<Map<String, Object>> getNeededCfg() {
         Map<String, Object> result = new HashMap<>();
@@ -146,11 +144,19 @@ public class SysConfigServiceImpl extends SuperServiceImpl<SysConfigMapper, SysC
         result.put(ldapEnable.getKey(), ldapEnable.getValue());
 
         if (isFirstSystemIn.getValue()) {
-            result.put(instances.getDinkyAddr().getKey(), instances.getDinkyAddr().getValue());
-            result.put(instances.getTaskOwnerLockStrategy().getKey(), instances.getTaskOwnerLockStrategy().getValue());
-            result.put(instances.getJobIdWait().getKey(), instances.getJobIdWait().getValue());
-            result.put(instances.getUseFlinkHistoryServer().getKey(), instances.getUseFlinkHistoryServer().getValue());
-            result.put(instances.getFlinkHistoryServerPort().getKey(), instances.getFlinkHistoryServerPort().getValue());
+            result.put(
+                    instances.getDinkyAddr().getKey(), instances.getDinkyAddr().getValue());
+            result.put(
+                    instances.getTaskOwnerLockStrategy().getKey(),
+                    instances.getTaskOwnerLockStrategy().getValue());
+            result.put(
+                    instances.getJobIdWait().getKey(), instances.getJobIdWait().getValue());
+            result.put(
+                    instances.getUseFlinkHistoryServer().getKey(),
+                    instances.getUseFlinkHistoryServer().getValue());
+            result.put(
+                    instances.getFlinkHistoryServerPort().getKey(),
+                    instances.getFlinkHistoryServerPort().getValue());
         }
         return Result.succeed(result);
     }

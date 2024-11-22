@@ -332,9 +332,7 @@ public enum Status {
     /**
      * system config
      */
-
-    SYS_GLOBAL_IS_FIRST(99,"sys.global.isFirst"),
-
+    SYS_GLOBAL_IS_FIRST(99, "sys.global.isFirst"),
 
     SYS_FLINK_SETTINGS_USERESTAPI(100, "sys.flink.settings.useRestAPI"),
     SYS_FLINK_SETTINGS_USERESTAPI_NOTE(101, "sys.flink.settings.useRestAPI.note"),
