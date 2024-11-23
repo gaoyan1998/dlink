@@ -38,7 +38,8 @@ export default {
   'welcome.base.config.dinky.url.title': 'Dinky地址：',
   'welcome.base.config.dinky.url':
     'dinky对外服务地址，请确保k8s或yarn集群内可以正常访问此地址,否则对于Application任务可能会无法正常监控状态',
-  'welcome.tips': '如果您还不清楚参数如何填写，不要担心，保持默认，后续可以随时前往配置中心进行修改',
+  'welcome.tips':
+    '如果您还不清楚参数如何填写，不要担心，保持默认，后续可以随时前往配置中心进行修改',
   'welcome.base.config.taskowner.title': '作业责任人锁机制：',
   'welcome.base.config.taskowner':
     '当选择[OWNER]时，只有作业责任人才能操作作业，其他用户无法操作/修改作业，\n            当选择[OWNER_AND_MAINTAINER]时，\n            作业责任人和维护人都可以操作/修改作业， 当选择[ALL]时，所有人都可以操作/修改作业， 默认为[ALL]',
@@ -51,5 +52,6 @@ export default {
   'welcome.flink.config.useHistoryServer':
     '此功能会在 Dinky 里面内置一个Flink History Server ，作用于 Flink 任务的历史查询，\n            使 Flink 任务减少 UNKNOWN 状态的情况，并打入 Flink 任务最后的状态信息',
   'welcome.flink.config.historyPort.title': 'Flink History Server 端口：',
-  'welcome.flink.config.historyPort': '内置Flink History Server 端口，例如：8082，确保端口没有被占用'
+  'welcome.flink.config.historyPort':
+    '内置Flink History Server 端口，例如：8082，确保端口没有被占用'
 };
