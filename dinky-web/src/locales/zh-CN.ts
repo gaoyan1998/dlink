@@ -24,6 +24,7 @@ import pwa from './zh-CN/pwa';
 import request from './zh-CN/request';
 import response from './zh-CN/response';
 import shortcutKey from './zh-CN/shortcutKey';
+import welcom from '@/locales/zh-CN/welcom';
 
 export default {
   'navBar.lang': '语言',
@@ -37,5 +38,6 @@ export default {
   ...pwa,
   ...request,
   ...response,
-  ...shortcutKey
+  ...shortcutKey,
+  ...welcom
 };

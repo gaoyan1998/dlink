@@ -17,22 +17,21 @@
  *
  */
 
-import { queryDataByParams } from '@/services/BusinessCrud';
-import { API_CONSTANTS } from '@/services/endpoints';
-import { SettingConfigKeyEnum } from '@/pages/SettingCenter/GlobalSetting/SettingOverView/constants';
+import { Button, Result } from 'antd';
+import { l } from '@/utils/intl';
 
-export async function queryDsConfig() {
-  return await queryDataByParams(API_CONSTANTS.SYSTEM_GET_ONE_TYPE_CONFIG, {
-    type: SettingConfigKeyEnum.DOLPHIN_SCHEDULER.toLowerCase()
-  });
-}
-
-export async function queryResourceConfig(keyword: string) {
-  return await queryDataByParams(API_CONSTANTS.SYSTEM_GET_ONE_TYPE_CONFIG, { type: keyword });
-}
-
-export async function queryTaskOwnerLockingStrategy() {
-  return await queryDataByParams(API_CONSTANTS.SYSTEM_GET_ONE_TYPE_CONFIG, {
-    type: SettingConfigKeyEnum.ENV.toLowerCase()
-  });
-}
+const FinishPage = () => {
+  return (
+    <Result
+      status='success'
+      title={l('welcom.finish.title')}
+      subTitle={l('welcom.finish')}
+      extra={[
+        <Button type='primary' onClick={() => (window.location.href = '/login')}>
+          {l('welcom.goLogin')}
+        </Button>
+      ]}
+    />
+  );
+};
+export default FinishPage;
