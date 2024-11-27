@@ -98,7 +98,7 @@ export default (props: { taskId: number }) => {
   );
 
   const refreshProcess = () => {
-    onUpdate(undefined)
+    onUpdate(undefined);
     subscribeTopic(Topic.PROCESS_CONSOLE, [process], (data: SseData) =>
       onUpdate(data?.data[process])
     );
