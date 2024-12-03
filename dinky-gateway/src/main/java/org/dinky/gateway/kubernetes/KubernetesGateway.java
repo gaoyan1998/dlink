@@ -88,13 +88,13 @@ public abstract class KubernetesGateway extends AbstractGateway {
         flinkConfigPath = config.getClusterConfig().getFlinkConfigPath();
         flinkConfig = config.getFlinkConfig();
         String jobName = flinkConfig.getJobName();
-        if (TextUtil.isEmpty(jobName)){
-            jobName = this.configuration.getString(KubernetesConfigOptions.CLUSTER_ID.key(),null);
+        if (TextUtil.isEmpty(jobName)) {
+            jobName = this.configuration.getString(KubernetesConfigOptions.CLUSTER_ID.key(), null);
         }
         if (!isValidTaskName(jobName)) {
-            throw new GatewayException(
-                    jobName + " is not Valid. In Kubernetes mode, task names must start and end with a lowercase letter or a digit, "
-                            + "and can contain lowercase letters, digits, dots, and hyphens in between.");
+            throw new GatewayException(jobName
+                    + " is not Valid. In Kubernetes mode, task names must start and end with a lowercase letter or a digit, "
+                    + "and can contain lowercase letters, digits, dots, and hyphens in between.");
         }
         k8sConfig = config.getKubernetesConfig();
 
