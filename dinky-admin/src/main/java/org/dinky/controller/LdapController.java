@@ -63,13 +63,6 @@ public class LdapController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/ldapEnableStatus")
-    @SaIgnore
-    @ApiOperation("Get LDAP enable status")
-    public Result<Boolean> ldapStatus() {
-        return Result.succeed(SystemConfiguration.getInstances().getLdapEnable().getValue());
-    }
-
     @GetMapping("/testConnection")
     @ApiOperation("Test connection to LDAP server")
     @SaCheckLogin

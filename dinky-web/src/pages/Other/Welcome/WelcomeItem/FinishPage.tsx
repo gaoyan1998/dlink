@@ -27,9 +27,9 @@ const FinishPage = () => {
       title={l('welcome.finish.title')}
       subTitle={l('welcome.finish')}
       extra={[
-        <Button type='primary' onClick={() => (window.location.href = '/user/login')}>
+        <a href='/'>
           {l('welcome.goLogin')}
-        </Button>
+        </a>
       ]}
     />
   );
