@@ -97,6 +97,7 @@ import { SseData, Topic } from '@/models/UseWebSocketModel';
 import { ResourceInfo } from '@/types/RegCenter/data';
 import { buildResourceTreeDataAtTreeForm } from '@/pages/RegCenter/Resource/components/FileTree/function';
 import { ProFormDependency } from '@ant-design/pro-form';
+import { SavePoint } from '@/pages/DataStudio/CenterTabContent/SqlTask/SavePoint';
 
 export type FlinkSqlProps = {
   showDesc: boolean;
@@ -226,6 +227,15 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    setCurrentState((prevState) => ({
+      ...prevState,
+      name: params.name,
+      note: params.note,
+      secondLevelOwners: params.secondLevelOwners,
+      firstLevelOwner: params.firstLevelOwner
+    }));
+  }, [params]);
   useEffect(() => {
     return subscribeTopic(Topic.TASK_RUN_INSTANCE, null, (data: SseData) => {
       if (data?.data?.RunningTaskId) {
@@ -381,6 +391,11 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
         />
       )
     });
+    rightToolbarItem.push({
+      label: l('menu.datastudio.savePoint'),
+      key: 'savePoint',
+      children: <SavePoint taskId={currentState.taskId} />
+    });
   }
 
   rightToolbarItem.push({
@@ -434,9 +449,8 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
   }, [currentState, updateAction]);
 
   const handleLineage = useCallback(async () => {
-    const { type, dialect, databaseId, statement, envId, fragment, taskId } = currentState;
+    const { dialect, databaseId, statement, envId, fragment, taskId } = currentState;
     const params: StudioLineageParams = {
-      type: 1, // todo: 暂时写死 ,后续优化
       dialect: dialect,
       envId: envId ?? -1,
       fragment: fragment,
@@ -444,7 +458,8 @@ export const SqlTask = memo((props: FlinkSqlProps & any) => {
       statementSet: true,
       databaseId: databaseId ?? 0,
       variables: {},
-      taskId: taskId
+      taskId: taskId,
+      configJson: currentState.configJson
     };
     const data = (await getDataByParams(
       API_CONSTANTS.STUDIO_GET_LINEAGE,
